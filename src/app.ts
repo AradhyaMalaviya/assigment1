@@ -1,11 +1,20 @@
 // src/app.ts - UPDATED WITH USER MANAGEMENT
+
+// Load environment variables FIRST, before any other import.
+// Under Node's ESM loader every static import is fully evaluated before this
+// module's body runs, and several modules read process.env at import time
+// (userDatabase.ts, routes/config.ts, routes/send.ts, notificationService.ts).
+// Bun loaded .env natively so a later config() call was harmless there; Node
+// does not, so dotenv must be imported for its side effect ahead of everything.
+import "dotenv/config";
+
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { serveStatic } from "hono/bun";
+import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
 import { mkdir } from "fs/promises";
 import { existsSync } from "fs";
-import { config } from "dotenv";
 
 // Import middleware
 import { authMiddleware } from "./middleware/auth";
@@ -17,9 +26,6 @@ import sendRoutes from "./routes/send";
 import reportRoutes from "./routes/report";
 import configRoutes from "./routes/config";
 import dashboardRoutes from "./routes/dashboard";
-
-// Load environment variables
-config();
 
 const app = new Hono();
 
@@ -216,7 +222,10 @@ setTimeout(async () => {
   }
 }, 1000);
 
-export default {
-  port,
+// Start the Node.js HTTP server (replaces the Bun `export default { port, fetch }` contract)
+serve({
   fetch: app.fetch,
-};
+  port: Number(port),
+});
+
+export default app;
