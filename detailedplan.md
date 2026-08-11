@@ -49,7 +49,7 @@ The `assignment` folder was enumerated recursively. Thirty-eight files exist out
 
 | # | File | Current Role | Required Action |
 | --- | --- | --- | --- |
-| 1 | `.env.example` | Template for `PORT`, `SESSION_SECRET`, primary SMTP (`SMTP_HOST/PORT/SECURE/USER/PASS`, `FROM_EMAIL`, `FROM_NAME`), and optional notification SMTP (`NOTIFICATION_SMTP_*`, `NOTIFICATION_FROM_NAME`). | Extend with the frontend/backend origin variables introduced by the split (`FRONTEND_ORIGIN`, and the frontend's own API base URL variable). Do **not** remove or rename existing keys — `src/routes/config.ts` and `src/routes/send.ts` read them by exact name. |
+| 1 | `.env.example` | Template for `PORT`, `SESSION_SECRET`, primary SMTP (`SMTP_HOST/PORT/SECURE/USER/PASS`, `FROM_EMAIL`, `FROM_NAME`), and optional notification SMTP (`NOTIFICATION_SMTP_*`, `NOTIFICATION_FROM_NAME`). | **Revised by Phase 2:** no new key is needed. Option A (ADR 0001) means the backend never learns the frontend's origin, so **do not add `FRONTEND_ORIGIN`** — it would be dead configuration. The frontend's own variables (`PUBLIC_API_BASE_URL=/api`, private `BACKEND_ORIGIN`) belong in `frontend/.env.example`. Do **not** remove or rename existing keys — `src/routes/config.ts` and `src/routes/send.ts` read them by exact name. |
 | 2 | `.gitignore` | Ignores `node_modules`, `out`, `dist`, coverage, `logs`, dotenv files, caches, `uploads/*`, `data/*`. Contains a duplicated `uploads/*` line and non-standard log patterns (`_.log`, `report.[0-9]_...`). | Add frontend artefacts: `.svelte-kit/`, `frontend/build/`, `frontend/.env*`, `frontend/node_modules/`. Remove the duplicate `uploads/*`. Ensure `package-lock.json` is **not** ignored (it must be committed for `npm ci` in CI). |
 | 3 | `bun.lock` | Bun dependency lockfile (20 KB). | Delete after the Node/npm migration and replace with `package-lock.json`. Keeping it contradicts the target runtime and will confuse reviewers. |
 | 4 | `CONTRIBUTING.md` | Contributor guide. Instructs `bun install`. Describes `src/routes`, `src/services`, `src/middleware` (labels them "Express", which is inaccurate — the project uses Hono). | Update install/dev commands to npm. Add a frontend section. Correct the "Express" wording to Hono. Add the frontend folder to the File Organization block. |
@@ -148,6 +148,25 @@ Every discrepancy found between sources is recorded here. None is silently resol
 | (not listed) | `GET /user/info`, `POST /parse-excel`, `POST /provider-info`, `POST /test-notification`, `GET /config/smtp/active`, `GET /health` all exist but are undocumented in the brief. | — |
 
 **Implementation rule:** build against §7, never against the brief's example list. Record this reconciliation in the README's API documentation so the reviewer sees the discrepancy was found deliberately, not missed.
+
+**Frozen as of Phase 2.** The contract is now published at `docs/api-contract.md`, verified route-by-route against the running backend. That document is authoritative for Phases 3–14; §7 below remains as the working derivation.
+
+### 2.2a Deltas Found When Freezing The Contract (Phase 2, 2026-08-11)
+
+Verifying §7 against the running backend surfaced two errors in §7 itself. Recorded here per the Phase 2 instruction to log surprises rather than work around them.
+
+| # | §7 claim | Reality | Consequence |
+| --- | --- | --- | --- |
+| 1 | §7.1 lists `GET /health` as an ordinary endpoint, and §14.2 recommends it as the deployment health check. | **`/health` requires a session.** It is absent from `publicPaths` in `src/app.ts:41-49` and from the skip list in `src/middleware/auth.ts:15-22`, so `authMiddleware` runs. Measured: 401 without a cookie, 200 with one. | A platform health check pointed at `/health` fails permanently and triggers a restart loop. **§14.2's advice is wrong as written.** Use a TCP port check, or a platform that accepts 401 as "alive". Adding `/health` to `publicPaths` would be a backend logic change and is forbidden. |
+| 2 | §7.2 documents `GET /config/smtp/active` as returning `{success, data, mode, configId, configName}`. | `configId` and `configName` are `defaultConfig?.id` / `?.name` (`config.ts:283-284`); `JSON.stringify` drops `undefined`, so with no user default the response is exactly `{"success":true,"data":null,"mode":"env"}`. | Type them **optional** (`configId?: string`), not nullable. A `string \| null` type compiles and then fails at runtime against `!== null` checks. |
+
+Three further behaviours were confirmed and are worth stating explicitly because each is a plausible source of a quiet bug:
+
+- **`currentMode` / `mode` are not a "has a config" signal.** Both are `defaultConfig ? "user" : "env"`, so they read `"env"` even when no env config exists. Branch on `hasConfig` / `hasEnvConfig`.
+- **`activeBatchCount` and `scheduledJobCount` are 0/1 flags, not counts** (`dashboard.ts:97-98`). Never render them as quantities.
+- **`emailRangeCount=0` sends to everyone.** `parseInt(...) || allContacts.length` (`send.ts:255`) treats a literal `0` as "unset". The range selector must never emit `0`.
+
+Everything else in §7 verified accurate: all 28 routes match the code, all sixteen `POST /send` field names match `send.ts`, and nine response shapes were captured live and match key-for-key.
 
 ### 2.3 Database Schema — Documented vs Actual
 
@@ -526,7 +545,7 @@ Routes: `/login`, `/register` (group `(auth)`); `/dashboard`, `/send`, `/configs
 
 **Auth boundary.** `(app)/+layout.ts` resolves the session before rendering: if `authStore` has no user, call `GET /auth/me`; on 401 `redirect(302, '/login?redirectTo=…')`. `(auth)` routes do the inverse — an already-authenticated visitor is sent to `/dashboard`, matching `public/login.html:378-384`.
 
-**Decision — `+layout.ts` (universal) vs `+layout.server.ts`.** `PROJECT_ASSIGNMENT.md`'s suggested tree shows `+layout.server.ts`. That requires the SvelteKit server to forward the browser's `session_token` cookie to the Hono backend on every navigation, which only works if the SvelteKit server runs (i.e. not with `adapter-static`) and adds a hop. Use `+layout.server.ts` **only if** the proxy topology of §6.2 Option A is chosen — in which case it is the right answer and also solves CORS. Otherwise use `+layout.ts`, which runs in the browser where the cookie already lives. **Decide this in Phase 3, before any route is written** — retrofitting is expensive.
+**Decision — `+layout.ts` (universal) vs `+layout.server.ts`. RESOLVED in Phase 2: use `+layout.server.ts`.** `PROJECT_ASSIGNMENT.md`'s suggested tree shows `+layout.server.ts`. That requires the SvelteKit server to forward the browser's `session_token` cookie to the Hono backend on every navigation, which only works if the SvelteKit server runs (i.e. not with `adapter-static`) and adds a hop. The condition attached to that choice — "only if the proxy topology of §6.2 Option A is chosen" — is now satisfied (ADR 0001), so `+layout.server.ts` is correct and also solves CORS. The guard calls the backend **directly** via the private `BACKEND_ORIGIN`, not through the app's own `/api` proxy, to avoid a pointless self-request.
 
 **Cross-cutting behaviours:** in-flight navigation indicator; `redirectTo` honoured after login; a global 401 handler in `lib/api/client.ts` that clears `authStore` and redirects once (guard against redirect loops when `/auth/me` itself 401s).
 
@@ -663,7 +682,7 @@ Derived from the route handlers, not from the brief. See §2.2 for where these d
 | POST | `/auth/logout` | — | `{success, message}`; deletes cookie | — |
 | GET | `/auth/me` | — | `{success, user:{id,email,name}}` | 401 when unauthenticated — **expected, not an error** |
 | GET | `/user/info` | — | identical shape to `/auth/me` | Legacy; used by `public/js/app.js:55`. **Standardise on `/auth/me`** and note the duplication in the README |
-| GET | `/health` | — | `{status:"OK", timestamp, version}` | Useful as the deployment smoke test |
+| GET | `/health` | — | `{status:"OK", timestamp, version}` | **Requires a session — see §2.2a item 1.** Not usable as a deployment smoke test |
 
 Cookie: name `session_token`, `httpOnly`, `secure` auto-detected, `sameSite: "lax"`, `maxAge: 86400`, `path: "/"`. Sessions expire after 24 h; expired rows are swept hourly and once at startup.
 
@@ -676,7 +695,7 @@ Cookie: name `session_token`, `httpOnly`, `secure` auto-detected, `sameSite: "la
 | PUT | `/config/smtp/:configId` | Partial JSON, same keys | `{success, message}`; 404 if not found or no fields changed |
 | DELETE | `/config/smtp/:configId` | — | `{success, message}`; 404 if not found |
 | POST | `/config/smtp/:configId/default` | — | `{success, message}` |
-| GET | `/config/smtp/active` | — | `{success, data, mode, configId, configName}` |
+| GET | `/config/smtp/active` | — | `{success, data, mode}`; `configId` and `configName` are present **only** when a user default exists — see §2.2a item 2 |
 | POST | `/config/smtp/test` | JSON `{host, port, secure, user, pass}` | `{success, message}` |
 
 **Three behaviours the UI must respect:**
@@ -814,6 +833,8 @@ Each phase lists exact actions, dependencies, likely failure points, and an exit
 
 **Failure point:** deferring this decision — it is the one choice that is expensive to reverse after routes exist.
 **Exit gate:** an authenticated cross-origin (or proxied) request succeeds from a browser page served on a different port from the backend.
+
+> **Completed 2026-08-11.** Option A adopted; decision, evidence, and consequences recorded in [`docs/adr/0001-frontend-backend-topology.md`](docs/adr/0001-frontend-backend-topology.md). Proxy prefix is `/api`, stripped before forwarding. Exit gate met: 8/8 browser checks passed against a page on `:5173` proxying to the backend on `:3000`, including cookie-only authentication, `httpOnly` preservation, a protected non-`/auth` route, and multipart upload. Option B was measured as a negative control and is **blocked by the browser** against the backend as shipped. Contract frozen at [`docs/api-contract.md`](docs/api-contract.md); deltas logged in §2.2a.
 
 ### Phase 3 — Frontend Scaffold
 **Depends on:** Phase 2.
@@ -1260,7 +1281,7 @@ Render, Railway, or a VPS. **Not a serverless platform.** Three pieces of state 
 1. Mount a persistent volume covering `data/`, `logs/`, `uploads/`.
 2. Set every environment variable — `SESSION_SECRET` above all: without it, `userDatabase.ts` generates a random secret at boot and **every existing session is invalidated on every restart**.
 3. Ensure `better-sqlite3` builds for the host's Node version and architecture.
-4. Health check → `GET /health`.
+4. Health check → **not `GET /health`**: it sits behind the auth gate and always answers 401 to an unauthenticated prober (§2.2a item 1). Use a TCP port check, or configure the platform to accept 401 as "alive".
 5. Long-running process required (the scheduler's `setInterval`).
 
 ### 14.3 The Cross-Site Cookie Problem — Read Before Deploying
