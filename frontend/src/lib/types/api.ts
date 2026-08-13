@@ -133,6 +133,20 @@ export interface ParseExcelResponse {
   totalCount: number;
   message?: string;
 }
+export interface ProviderInfo {
+  provider: string;
+  dailyLimit: number;
+  maxContacts: number;
+  recommendedBatchSize: number;
+  recommendedDelay: number;
+}
+export interface ProviderInfoResponse extends ApiResponse<never> {
+  provider: string;
+  dailyLimit: number;
+  maxContacts: number;
+  recommendedBatchSize: number;
+  recommendedDelay: number;
+}
 export type SendResponse =
   | {
       success: true;
