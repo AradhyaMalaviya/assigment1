@@ -53,13 +53,13 @@ function handleUnauthorized(path: string) {
     void goto(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`);
 }
 
-export async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+export async function request<T>(path: string, options: ApiRequestOptions = {}, fetchImpl: typeof fetch = fetch): Promise<T> {
   const headers = new Headers(options.headers);
   if (isJsonBody(options.body) && !headers.has('Content-Type'))
     headers.set('Content-Type', 'application/json');
   // FormData deliberately reaches the browser unchanged so it creates the multipart boundary.
   if (isFormData(options.body)) headers.delete('Content-Type');
-  const response = await fetch(requestUrl(path), { ...options, headers, credentials: 'include' });
+  const response = await fetchImpl(requestUrl(path), { ...options, headers, credentials: 'include' });
   let payload: unknown;
   try {
     payload = await response.json();

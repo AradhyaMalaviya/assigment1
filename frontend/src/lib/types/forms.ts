@@ -16,3 +16,11 @@ export interface SmtpConfigForm {
   fromName: string;
   isDefault: boolean;
 }
+
+export interface SmtpTestPayload {
+  host: string;
+  port: number;
+  secure: boolean;
+  user: string;
+  pass: string;
+}
