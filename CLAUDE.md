@@ -12,18 +12,18 @@ The repository has completed the migration foundation and the first two protecte
 | Phase 3 - frontend foundation | Complete | `frontend/` is a SvelteKit + TypeScript app using `@sveltejs/adapter-node`, shared UI primitives, app styling, an API client, frontend contract types, toast/auth/activity/polling stores, and the rescued sample workbook at `frontend/static/samples/sample-contacts.xlsx`. |
 | Phase 4 - authentication | Complete | Login/register, server-side protected/public layout guards, cookie-aware session lookup, safe post-login redirects, central 401 handling, app chrome, and logout invalidation are implemented. |
 | Phase 5 - SMTP configuration | Complete | `/configs` loads saved configurations and supports create, view, edit, delete, set-default, test-connection, Gmail app-password help, masked passwords, and refetch-after-mutation behavior. Editing omits `pass` unless the user supplies a replacement. |
-| Phase 6 - compose and upload | Planned, not implemented | `/send` is still a scaffold; `lib/components/email/` contains only its barrel. A detailed, source-reconciled implementation plan is appended to the workspace-level `../mainplan.md`, outside this Git repository. It covers configuration selection, Excel parsing, range safety, templates, rich editing, preview, provider limits, and the Phase 6 exit gate. |
+| Phase 6 - compose and upload | Complete | `/send` is fully implemented; `lib/api/email.ts` wraps `POST /parse-excel` and `POST /provider-info`. Reusable components `ConfigSelector`, `ContactUploader`, `ContactPreviewTable`, `EmailRangeSelector`, `SubjectField`, `PlaceholderHelp`, `TemplateUploader`, `ProviderLimitPanel`, and `EmailPreviewModal` handle composition, recipient range math, browser template reading, provider caps, and live personalized previews. `RichTextEditor` is upgraded to a browser-only TipTap editor with HTML source toggle. |
 | Phases 7-14 | Planned, not implemented | Sending modes, dashboard/monitoring, scheduled jobs, reports, old-frontend removal, final polish, documentation, and submission verification remain future work. `/dashboard`, `/scheduled`, and `/reports` are intentionally scaffold pages. |
 
 Latest code checks for this baseline:
 
-- Backend `npm.cmd run typecheck` passed.
-- Frontend `npm.cmd run check` passed with 0 errors and 0 warnings; `npm.cmd run lint` passed.
-- Frontend `npm.cmd run build` completed Vite's SSR and client compilation successfully, but the command runner did not exit before its 120-second limit. Re-run the build locally and require a clean process exit before treating production-build verification as complete.
+- Backend `npm.cmd run typecheck` passed (0 errors).
+- Frontend `npm.cmd run check` passed with 0 errors and 0 warnings; `npm.cmd run lint` passed (0 errors, 0 warnings).
+- Frontend `npm.cmd run build` completed successfully with `@sveltejs/adapter-node`.
 
 ### Immediate next work
 
-Implement Phase 6 from `../mainplan.md` before beginning Phase 7. Keep it composition-only: do not call `POST /send` or add batch, schedule, notification, polling, dashboard, or report behavior until Phase 7 and later phases. The Phase 6 plan is deliberately outside this repository because it is a workspace planning artifact; application changes still belong under `assignment/`.
+Implement Phase 7 from `../mainplan.md`. Phase 6 composition workspace is complete. Phase 7 will assembly the 16-field `POST /send` request, delivery controls (immediate, batch, scheduled), notifications, and post-send monitoring.
 
 ## What this is
 
