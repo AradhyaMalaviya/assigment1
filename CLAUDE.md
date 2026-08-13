@@ -2,6 +2,29 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Current implementation status (verified 2026-08-13)
+
+The repository has completed the migration foundation and the first two protected frontend features. Treat the status below as the current baseline; do not describe planned work as implemented.
+
+| Area | Status | Verified implementation / boundary |
+| --- | --- | --- |
+| Phases 0-2 | Complete | The backend runs on Node.js with `better-sqlite3`; the API contract is frozen in `docs/api-contract.md`; ADR 0001 locks the same-origin SvelteKit `/api` proxy topology. |
+| Phase 3 - frontend foundation | Complete | `frontend/` is a SvelteKit + TypeScript app using `@sveltejs/adapter-node`, shared UI primitives, app styling, an API client, frontend contract types, toast/auth/activity/polling stores, and the rescued sample workbook at `frontend/static/samples/sample-contacts.xlsx`. |
+| Phase 4 - authentication | Complete | Login/register, server-side protected/public layout guards, cookie-aware session lookup, safe post-login redirects, central 401 handling, app chrome, and logout invalidation are implemented. |
+| Phase 5 - SMTP configuration | Complete | `/configs` loads saved configurations and supports create, view, edit, delete, set-default, test-connection, Gmail app-password help, masked passwords, and refetch-after-mutation behavior. Editing omits `pass` unless the user supplies a replacement. |
+| Phase 6 - compose and upload | Planned, not implemented | `/send` is still a scaffold; `lib/components/email/` contains only its barrel. A detailed, source-reconciled implementation plan is appended to the workspace-level `../mainplan.md`, outside this Git repository. It covers configuration selection, Excel parsing, range safety, templates, rich editing, preview, provider limits, and the Phase 6 exit gate. |
+| Phases 7-14 | Planned, not implemented | Sending modes, dashboard/monitoring, scheduled jobs, reports, old-frontend removal, final polish, documentation, and submission verification remain future work. `/dashboard`, `/scheduled`, and `/reports` are intentionally scaffold pages. |
+
+Latest code checks for this baseline:
+
+- Backend `npm.cmd run typecheck` passed.
+- Frontend `npm.cmd run check` passed with 0 errors and 0 warnings; `npm.cmd run lint` passed.
+- Frontend `npm.cmd run build` completed Vite's SSR and client compilation successfully, but the command runner did not exit before its 120-second limit. Re-run the build locally and require a clean process exit before treating production-build verification as complete.
+
+### Immediate next work
+
+Implement Phase 6 from `../mainplan.md` before beginning Phase 7. Keep it composition-only: do not call `POST /send` or add batch, schedule, notification, polling, dashboard, or report behavior until Phase 7 and later phases. The Phase 6 plan is deliberately outside this repository because it is a workspace planning artifact; application changes still belong under `assignment/`.
+
 ## What this is
 
 A **Bulk Email Sender**, split into two independently-run processes in this repo:
@@ -19,6 +42,8 @@ This repo carries its own planning trail; don't re-derive decisions that are alr
 - **`docs/adr/0001-frontend-backend-topology.md`** — why the frontend proxies `/api/*` to the backend server-side instead of calling it cross-origin with CORS (the backend's `cors()` wildcard + `sameSite: "Lax"` cookie make direct cross-origin calls unfixable without editing backend auth code, which is off-limits).
 - **`detailedplan.md`** — the full implementation plan, phase roadmap, and a risk register (§16) of specific footguns ported from the old frontend (timezone handling for `scheduledTime`, `FormData` boundary corruption, `"on"`-vs-`"true"` boolean fields, etc.).
 - **`task1.md`** / **`PROJECT_ASSIGNMENT.md`** — the hiring brief and project brief. Co-equal top authority per `detailedplan.md` §0.1, but where either disagrees with the actual backend code, **the code (and `docs/api-contract.md`) wins**.
+
+**Workspace planning artifact:** `../mainplan.md` is outside this repository and now contains the master completion plan plus a detailed Phase 6 plan. Use it to sequence the next implementation, but treat source code and the frozen API contract as the proof of what has actually been completed.
 
 ## Commands
 
@@ -74,6 +99,18 @@ Two independent guards, both built on `lib/server/session.ts`'s `getSessionUser(
 
 The Phase 3 component gallery (`routes/__gallery/`) that once sat outside both route groups — and therefore rendered unauthenticated — has been deleted now that Phase 4 is done; the `ui/` primitives it exercised are unaffected.
 
+### SMTP configuration (implemented - Phase 5)
+
+`/configs` is the completed configuration-management route. Its `+page.ts` loads `GET /config/smtp` through `lib/api/config.ts` and registers the `app:configs` dependency; mutation handlers invalidate that dependency instead of maintaining a second, divergent local fetch path. `ConfigList`, `ConfigCard`, `ConfigForm`, `ConfigDetails`, `TestConnectionButton`, and `ProviderHelp` keep feature code under `lib/components/config/` while continuing to reuse generic `ui/` controls.
+
+Important invariants:
+
+- Render the backend's `userConfigs[]` order unchanged; it is already default-first and newest-first.
+- Never place a password in the DOM. `GET /config/smtp` has a known plaintext-password response hazard in its active `data` object, while `userConfigs[]` intentionally omits it. `ConfigDetails` masks it.
+- For an edit, omit the `pass` key unless a user actually entered a new password. Sending `pass: ""` overwrites the stored credential and breaks later sending.
+- The actual backend endpoints are `POST /config/smtp/test` (full config body) and `POST /config/smtp/:configId/default`; do not copy the stale assignment examples that include `:id/test` or `:id/set-default`.
+- `GET /config/smtp/active` is already exposed by `lib/api/config.ts` for Phase 6's future selector; it may omit `configId` and `configName` when no user default exists, so both remain optional frontend fields.
+
 ### Backend structure (`src/`)
 
 - `app.ts` — Hono app setup. A single hand-rolled middleware gates every path except an explicit `publicPaths` allowlist (`/auth/`, `/login`, `/register`, `/public/`, `/css/`, `/js/`, `/favicon.ico`); everything else runs `middleware/auth.ts`'s `authMiddleware`, which accepts either a `session_token` cookie or an `Authorization: Bearer` header. Root `/` has special-cased redirect-to-login/dashboard logic. It also still serves the legacy `public/` static frontend — the assignment calls for that folder's removal, but as of this file it's still wired in `app.ts`, so don't assume it's gone.
@@ -90,10 +127,10 @@ The Phase 3 component gallery (`routes/__gallery/`) that once sat outside both r
 - `routes/(auth)/` — login/register, public, guarded by `(auth)/+layout.server.ts` (see Authentication above).
 - `routes/(app)/` — the protected app shell (dashboard, send, configs, reports, scheduled), guarded server-side by `(app)/+layout.server.ts`.
 - `routes/api/[...path]/+server.ts` — the backend proxy described above.
-- `lib/api/client.ts` — the only place API calls should be issued from; `lib/api/` per-feature modules (`auth.ts` so far) should build on top of it rather than calling `fetch` directly.
+- `lib/api/client.ts` — the only place API calls should be issued from; implemented feature modules are `auth.ts` and `config.ts`. Phase 6 must add `email.ts` on top of this wrapper rather than calling `fetch` directly.
 - `lib/server/session.ts` — server-only (`$lib/server/*`) session resolution shared by both route guards; not importable from client code.
 - `lib/stores/` — `auth.ts` (current user), `polling.ts` (dashboard polling cadence — the poll interval is driven by the backend's `pollInterval` value from `/dashboard/poll-status`, not hardcoded), `toast.ts`, `activity.ts`.
-- `lib/components/ui/` — generic components (Button, Modal, Table, Toast, RichTextEditor, …); `lib/components/shared/` — app chrome (Navbar, Sidebar, UserMenu, Footer); feature-specific component folders (`config/`, `dashboard/`, `email/`, `reports/`) currently only have placeholder `index.ts` barrels.
+- `lib/components/ui/` — generic components (Button, Modal, Table, Toast, `RichTextEditor`, …). `RichTextEditor` is currently a textarea-compatible shell and must be replaced by a lazy browser-only rich editor in Phase 6. `lib/components/shared/` contains app chrome (Navbar, Sidebar, UserMenu, Footer). Feature status: `config/` is implemented; `dashboard/`, `email/`, and `reports/` still contain placeholder barrels.
 - Adapter is `@sveltejs/adapter-node` (required — `adapter-static` cannot run the proxy route; locked in by ADR 0001).
 
 ### Backend response-shape gotchas worth knowing before writing frontend code against them
