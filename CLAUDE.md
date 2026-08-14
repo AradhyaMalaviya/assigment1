@@ -15,7 +15,8 @@ The repository has completed the migration foundation and the first two protecte
 | Phase 6 - compose and upload | Complete | `/send` is fully implemented; `lib/api/email.ts` wraps `POST /parse-excel` and `POST /provider-info`. Reusable components `ConfigSelector`, `ContactUploader`, `ContactPreviewTable`, `EmailRangeSelector`, `SubjectField`, `PlaceholderHelp`, `TemplateUploader`, `ProviderLimitPanel`, and `EmailPreviewModal` handle composition, recipient range math, browser template reading, provider caps, and live personalized previews. `RichTextEditor` is upgraded to a browser-only TipTap editor with HTML source toggle. |
 | Phase 7 - sending modes | Complete | Full 16-field multipart `POST /send` pipeline is implemented via `buildSendFormData()`; boolean fields serialize as literal `"on"`; `BatchSettings`, `ScheduleSettings`, and `SendSuccessModal` handle batch estimation, scheduling with IANA timezone detection & UTC ISO conversion, email notification tests via `POST /test-notification`, desktop notifications, `activities` store logging, and 3-mode dispatch outcomes. |
 | Phase 8 - dashboard & monitoring | Complete | Adaptive monitoring driven by `GET /dashboard/poll-status` (3s active batch, 10s running scheduled, 30s pending scheduled, 0 requests when idle); `BatchMonitor` provides live progress bar, sent/failed metrics, next-batch display countdown, and Pause/Resume/Cancel (`DELETE /batch-cancel`) controls; `ScheduledJobsPreview` renders up to 5 scheduled jobs in local timezone; `ActivityTimeline` consumes persisted `activities` store. Full timer teardown on route unmount. |
-| Phases 9-14 | Planned, not implemented | Scheduled jobs management, reports, old-frontend removal, final polish, documentation, and submission verification remain future work. `/scheduled` and `/reports` are intentionally scaffold pages. |
+| Phase 9 - scheduled jobs | Complete | `/scheduled` management route implemented; `lib/api/scheduled.ts` wraps `GET /scheduled-jobs` and `DELETE /scheduled-jobs/:id`. Features `ScheduledJobTable` (desktop) and `ScheduledJobCard` (mobile), local timezone timestamp formatting, batch/sequential badges, cancel confirmation modal, locked cancel on `running` jobs (preventing 404s), 60s scheduler interval notice, search/status filters, and summary metrics. |
+| Phases 10-14 | Planned, not implemented | Reports, old-frontend removal, final polish, documentation, and submission verification remain future work. `/reports` is intentionally a scaffold page. |
 
 Latest code checks for this baseline:
 
@@ -25,7 +26,7 @@ Latest code checks for this baseline:
 
 ### Immediate next work
 
-Implement Phase 9 from `../mainplan.md` (Scheduled Jobs Management). Phase 8 dashboard and adaptive monitoring workspace is complete. Phase 9 will implement `/scheduled` full management, cancellation with `DELETE /scheduled-jobs/:id`, local timezone formatting, running job cancel guards, and auto-refresh.
+Implement Phase 10 from `../mainplan.md` (Reports and Analytics). Phase 9 scheduled jobs workspace is complete. Phase 10 will implement `/reports` statistics, logs table, client-side debounced search/filtering, CSV/JSON exports, and clear logs with confirmation.
 
 ## What this is
 
@@ -155,6 +156,20 @@ Important invariants:
   - Displays recipient count, batch vs sequential execution tags, status badges with accessible non-color-only text, and alert email indicators.
 - **Recent Activity Timeline (`ActivityTimeline.svelte`):**
   - Connects to the persisted `activities` store (`lib/stores/activity.ts`), displaying chronological dispatch events across user sessions with clear event badge icons and timestamps.
+
+### Scheduled Jobs Management (implemented - Phase 9)
+
+`/scheduled` is the dedicated queue management workspace for all future automated campaigns:
+- **API Module (`lib/api/scheduled.ts`):** `getScheduledJobs()` wraps `GET /scheduled-jobs` returning all active (`scheduled` and `running`) jobs; `cancelScheduledJob(id)` wraps `DELETE /scheduled-jobs/:id`.
+- **Scheduled Jobs Views (`lib/components/scheduled/`):**
+  - `ScheduledJobTable.svelte`: Accessible tabular presentation for desktop screens (>= 768px).
+  - `ScheduledJobCard.svelte`: Responsive stacked card layout for mobile devices (< 768px).
+- **Timezone Localization:** UTC ISO schedule timestamps returned by the server are dynamically formatted in the user's local timezone.
+- **Cancellation Protection:**
+  - Full modal confirmation (`ConfirmDialog.svelte`) before cancellation.
+  - **Running Job Lock:** The Cancel button is explicitly disabled on jobs with `status === 'running'`, accompanied by explanatory tooltips, because the backend only cancels `scheduled` jobs and returns 404 for running ones.
+- **Search & Filtering:** Dynamic client-side text filtering by subject, SMTP configuration, notification recipient, or job ID, paired with tabbed status filters (All, Scheduled, Running).
+- **Scheduler Lag Notice:** Explains the 60-second polling cadence of the background scheduler service.
 
 ### Backend structure (`src/`)
 

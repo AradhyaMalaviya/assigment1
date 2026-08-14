@@ -997,6 +997,32 @@ Each phase lists exact actions, dependencies, likely failure points, and an exit
 **Failure points:** rendering UTC as if it were local; offering Cancel on a running job and showing an unexplained 404.
 **Exit gate:** create → appears in the list at the correct local time → cancel → disappears; a running job's Cancel control is disabled with an explanatory tooltip.
 
+#### 9.9a Phase 9 Verified Implementation & Completion Record
+
+**Implementation Date:** 2026-08-14  
+**Status:** Complete & Verified
+
+1. **API Integration (`lib/api/scheduled.ts`):**
+   - Implemented `getScheduledJobs()` consuming `GET /scheduled-jobs` returning all active `scheduled` and `running` jobs.
+   - Implemented `cancelScheduledJob(id)` issuing `DELETE /scheduled-jobs/:id`.
+
+2. **Component Architecture & Views (`lib/components/scheduled/`):**
+   - `ScheduledJobTable.svelte`: High-density tabular layout for desktop viewports (>= 768px).
+   - `ScheduledJobCard.svelte`: Accessible card component for mobile viewports (< 768px).
+   - `routes/(app)/scheduled/+page.svelte`: Complete management page with summary metrics (Pending Scheduled, Active Dispatch, Total Queued Recipients), live text search, status filters (All, Scheduled, Running), manual refresh, and empty states.
+
+3. **Critical Contract Guards & UX:**
+   - **Local Timezone Conversion:** Server UTC ISO timestamps are formatted in the browser's local timezone.
+   - **Running Job Cancellation Lock:** The Cancel button is disabled for jobs in `running` status with an explanatory title/tooltip, preventing backend 404 errors.
+   - **Destructive Mutation Protection:** `ConfirmDialog.svelte` confirms cancellation before issuing the `DELETE` request; immediate refetch updates the view.
+   - **Scheduler Cadence Notice:** Prominent notice informs users of the 60-second scheduler tick interval.
+
+4. **Code Quality & Build Verification:**
+   - Backend `npm.cmd run typecheck`: 0 errors.
+   - Frontend `npm.cmd run check`: 0 errors, 0 warnings.
+   - Frontend `npm.cmd run lint`: 0 errors, 0 warnings.
+   - Frontend `npm.cmd run build`: 100% successful with `@sveltejs/adapter-node`.
+
 ### Phase 10 — Reports
 **Depends on:** Phase 4 (independent of 6–9, and safe to parallelise).
 1. `/reports` from `GET /report`.

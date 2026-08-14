@@ -68,20 +68,32 @@ export interface BatchStatus {
 }
 export interface ScheduledJob {
   id: string;
-  userId: string;
-  emailJob: EmailJob;
+  userId?: string;
+  user_id?: string;
+  emailJob?: EmailJob;
+  email_job?: string;
   batchConfig?: BatchConfig;
-  scheduledTime: string;
+  batch_config?: string;
+  scheduledTime?: string;
+  scheduled_time?: string;
   notifyEmail?: string;
+  notify_email?: string;
   notifyBrowser?: boolean;
+  notify_browser?: number | boolean;
   status: 'scheduled' | 'running' | 'completed' | 'failed' | 'cancelled';
-  createdAt: string;
+  createdAt?: string;
+  created_at?: string;
   startedAt?: string;
+  started_at?: string;
   completedAt?: string;
-  contactCount: number;
-  subject: string;
-  useBatch: boolean;
+  completed_at?: string;
+  contactCount?: number;
+  contact_count?: number;
+  subject?: string;
+  useBatch?: boolean;
+  use_batch?: number | boolean;
   configName?: string;
+  config_name?: string;
 }
 export interface ProviderLimits {
   dailyLimit: number;

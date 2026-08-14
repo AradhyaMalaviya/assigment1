@@ -47,11 +47,17 @@
     {:else}
       <div class="jobs-list">
         {#each jobs as job (job.id)}
+          {@const subject = job.subject || job.emailJob?.subject || 'Bulk Email Campaign'}
+          {@const scheduledTime = job.scheduledTime || job.scheduled_time || ''}
+          {@const contacts = job.contactCount ?? job.contact_count ?? job.emailJob?.contacts?.length ?? '—'}
+          {@const isBatch = Boolean(job.useBatch ?? job.use_batch ?? job.batchConfig?.enabled)}
+          {@const notify = job.notifyEmail || job.notify_email || ''}
+
           <div class="job-item">
             <div class="job-main">
               <div class="job-title-row">
-                <span class="job-subject">
-                  {job.emailJob?.subject || 'Bulk Email Campaign'}
+                <span class="job-subject" title={subject}>
+                  {subject}
                 </span>
                 <Badge
                   variant={job.status === 'running' ? 'info' : 'warning'}
@@ -61,24 +67,24 @@
 
               <div class="job-meta-row">
                 <span class="meta-item">
-                  <strong>Launch:</strong> {formatLocalDateTime(job.scheduledTime)}
+                  <strong>Launch:</strong> {formatLocalDateTime(scheduledTime)}
                 </span>
                 <span class="meta-divider">•</span>
                 <span class="meta-item">
-                  <strong>Contacts:</strong> {job.emailJob?.contacts?.length ?? '—'}
+                  <strong>Contacts:</strong> {contacts}
                 </span>
                 <span class="meta-divider">•</span>
                 <span class="meta-item">
-                  {#if job.batchConfig?.enabled}
-                    <span class="batch-tag">⚡ Batch ({job.batchConfig.batchSize} / batch)</span>
+                  {#if isBatch}
+                    <span class="batch-tag">⚡ Batch</span>
                   {:else}
                     <span class="sequential-tag">Sequential</span>
                   {/if}
                 </span>
-                {#if job.notifyEmail}
+                {#if notify}
                   <span class="meta-divider">•</span>
                   <span class="meta-item notify-tag" title="Notification alert will be sent on completion">
-                    🔔 {job.notifyEmail}
+                    🔔 {notify}
                   </span>
                 {/if}
               </div>
