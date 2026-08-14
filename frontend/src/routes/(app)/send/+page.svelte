@@ -7,10 +7,14 @@
   import Spinner from '$lib/components/ui/Spinner.svelte';
   import RichTextEditor from '$lib/components/ui/RichTextEditor.svelte';
   import { listConfigs } from '$lib/api/config';
-  import { parseExcel, getProviderInfo } from '$lib/api/email';
-  import type { SmtpConfig, Contact, ProviderInfo } from '$lib/types/api';
+  import { parseExcel, getProviderInfo, sendEmails } from '$lib/api/email';
+  import type { SmtpConfig, Contact, ProviderInfo, SendResponse } from '$lib/types/api';
   import type { RecipientRangeInput } from '$lib/types/forms';
   import { computeRecipientRange } from '$lib/utils/range';
+  import { isValidEmail } from '$lib/utils/validation';
+  import { buildSendFormData } from '$lib/utils/sendForm';
+  import { addActivity } from '$lib/stores/activity';
+  import { addToast } from '$lib/stores/toast';
   import {
     ConfigSelector,
     ContactUploader,
@@ -19,15 +23,19 @@
     SubjectField,
     TemplateUploader,
     ProviderLimitPanel,
-    EmailPreviewModal
+    EmailPreviewModal,
+    BatchSettings,
+    ScheduleSettings,
+    SendSuccessModal
   } from '$lib/components/email';
 
-  // Page state
+  // Page state - Configs
   let configs: SmtpConfig[] = [];
   let loadingConfigs: boolean = true;
   let configError: string | null = null;
   let selectedConfigId: string = '';
 
+  // Page state - Contacts & Range
   let excelFile: File | null = null;
   let parsedContacts: Contact[] = [];
   let totalContactCount: number = 0;
@@ -41,18 +49,36 @@
     rangeEnd: 5
   };
 
+  // Page state - Content
   let subject: string = '';
   let delay: number = 20;
   let htmlContent: string = '';
-
   let htmlTemplateFile: File | null = null;
   let templatePreviewHtml: string | null = null;
 
+  // Page state - Batch Settings
+  let useBatch: boolean = false;
+  let batchSize: number = 20;
+  let batchDelay: number = 60;
+  let emailDelay: number = 45;
+
+  // Page state - Schedule & Notification Settings
+  let scheduleEmail: boolean = false;
+  let scheduledTime: string = '';
+  let notifyEmail: string = '';
+  let notifyBrowser: boolean = false;
+
+  // Page state - Provider Limits
   let providerInfo: ProviderInfo | null = null;
   let loadingProvider: boolean = false;
   let providerError: string | null = null;
 
+  // Page state - Modals & Sending
   let previewOpen: boolean = false;
+  let isSending: boolean = false;
+  let sendError: string | null = null;
+  let sendResult: SendResponse | null = null;
+  let successModalOpen: boolean = false;
 
   // Derived state
   $: selectedConfig = configs.find((c) => c.id === selectedConfigId) || null;
@@ -67,6 +93,15 @@
   $: hasValidContent = !!htmlTemplateFile || !isEditorContentEmpty;
   $: isSubjectValid = subject.trim().length > 0;
   $: isDelayValid = Number.isInteger(delay) && delay >= 1;
+  $: isBatchValid = !useBatch || (
+    Number.isInteger(batchSize) && batchSize >= 1 &&
+    Number.isInteger(batchDelay) && batchDelay >= 1 &&
+    Number.isInteger(emailDelay) && emailDelay >= 1
+  );
+  $: isScheduleValid = !scheduleEmail || (
+    !!scheduledTime && new Date(scheduledTime).getTime() > Date.now()
+  );
+  $: isNotifyEmailValid = !notifyEmail || isValidEmail(notifyEmail.trim());
   $: isProviderCapValid = !providerInfo || computedRange.count <= providerInfo.maxContacts;
 
   $: isCompositionReady = !!selectedConfigId &&
@@ -75,7 +110,16 @@
     isSubjectValid &&
     isDelayValid &&
     hasValidContent &&
+    isBatchValid &&
+    isScheduleValid &&
+    isNotifyEmailValid &&
     isProviderCapValid;
+
+  $: sendButtonLabel = scheduleEmail
+    ? '📅 Schedule Campaign'
+    : useBatch
+    ? '⚡ Send Campaign (Batch Mode)'
+    : '🚀 Send Campaign Immediately';
 
   onMount(async () => {
     try {
@@ -85,7 +129,7 @@
       if (configs.length > 0) {
         const defaultConfig = configs.find((c) => c.isDefault) || configs[0];
         selectedConfigId = defaultConfig.id || '';
-        fetchProviderForConfig(defaultConfig);
+        fetchProviderForConfig(defaultConfig, !!notifyEmail);
       }
     } catch (err: unknown) {
       configError = (err as Error)?.message || 'Failed to load SMTP configurations.';
@@ -94,7 +138,7 @@
     }
   });
 
-  async function fetchProviderForConfig(config: SmtpConfig | null) {
+  async function fetchProviderForConfig(config: SmtpConfig | null, hasNotification: boolean) {
     if (!config || !config.host) {
       providerInfo = null;
       return;
@@ -102,7 +146,7 @@
     try {
       loadingProvider = true;
       providerError = null;
-      const res = await getProviderInfo(config.host, false);
+      const res = await getProviderInfo(config.host, hasNotification);
       providerInfo = {
         provider: res.provider,
         dailyLimit: res.dailyLimit,
@@ -120,7 +164,7 @@
 
   function handleConfigSelect(event: CustomEvent<{ configId: string; config: SmtpConfig | null }>) {
     selectedConfigId = event.detail.configId;
-    fetchProviderForConfig(event.detail.config);
+    fetchProviderForConfig(event.detail.config, !!notifyEmail);
   }
 
   async function handleFileSelect(event: CustomEvent<File | null>) {
@@ -176,6 +220,36 @@
     templatePreviewHtml = event.detail;
   }
 
+  function handleBatchChange(event: CustomEvent<{
+    useBatch: boolean;
+    batchSize: number;
+    batchDelay: number;
+    emailDelay: number;
+  }>) {
+    useBatch = event.detail.useBatch;
+    batchSize = event.detail.batchSize;
+    batchDelay = event.detail.batchDelay;
+    emailDelay = event.detail.emailDelay;
+  }
+
+  function handleScheduleChange(event: CustomEvent<{
+    scheduleEmail: boolean;
+    scheduledTime: string;
+    notifyEmail: string;
+    notifyBrowser: boolean;
+  }>) {
+    const prevNotify = notifyEmail;
+    scheduleEmail = event.detail.scheduleEmail;
+    scheduledTime = event.detail.scheduledTime;
+    notifyEmail = event.detail.notifyEmail;
+    notifyBrowser = event.detail.notifyBrowser;
+
+    // If notification email presence changed, refresh provider limits
+    if (!!prevNotify !== !!notifyEmail && selectedConfig) {
+      fetchProviderForConfig(selectedConfig, !!notifyEmail);
+    }
+  }
+
   function openPreview() {
     previewOpen = true;
   }
@@ -183,11 +257,90 @@
   function closePreview() {
     previewOpen = false;
   }
+
+  async function handleSendCampaign() {
+    sendError = null;
+
+    if (!isCompositionReady) {
+      sendError = 'Please complete all required campaign parameters before dispatching.';
+      return;
+    }
+
+    if (!excelFile) {
+      sendError = 'Please select a valid Excel contacts file.';
+      return;
+    }
+
+    try {
+      isSending = true;
+
+      const payload = {
+        configId: selectedConfigId,
+        subject,
+        htmlContent,
+        delay,
+        useBatch,
+        batchSize,
+        batchDelay,
+        emailDelay,
+        scheduleEmail,
+        scheduledTimeLocal: scheduledTime,
+        notifyEmail,
+        notifyBrowser,
+        rangeStart: computedRange.start,
+        rangeCount: computedRange.count,
+        excelFile,
+        htmlTemplateFile
+      };
+
+      const formData = buildSendFormData(payload);
+      const res = await sendEmails(formData);
+      sendResult = res;
+      successModalOpen = true;
+
+      // Record activity in the activity timeline
+      if (res && 'scheduledMode' in res && res.scheduledMode === true) {
+        addActivity(
+          'scheduled',
+          `Scheduled "${subject}" for ${res.contactCount} contact${res.contactCount === 1 ? '' : 's'} at ${new Date(res.scheduledTime).toLocaleString()}`
+        );
+        addToast(`Campaign scheduled successfully for ${new Date(res.scheduledTime).toLocaleTimeString()}!`, 'success', 'Campaign Scheduled');
+      } else if (res && 'batchMode' in res && res.batchMode === true) {
+        addActivity(
+          'started',
+          `Started batch campaign "${subject}" for ${res.contactCount} contacts`
+        );
+        addToast(`Batch campaign started for ${res.contactCount} contacts!`, 'success', 'Batch Started');
+      } else {
+        addActivity(
+          'started',
+          `Started bulk sending "${subject}" to ${res.contactCount} contacts`
+        );
+        addToast(`Campaign dispatched to ${res.contactCount} contacts!`, 'success', 'Sending Started');
+      }
+    } catch (err: unknown) {
+      sendError = (err as Error)?.message || 'Failed to dispatch campaign. Please verify SMTP credentials and settings.';
+    } finally {
+      isSending = false;
+    }
+  }
+
+  function handleComposeAnother() {
+    successModalOpen = false;
+    sendResult = null;
+    subject = '';
+    htmlContent = '';
+    htmlTemplateFile = null;
+    templatePreviewHtml = null;
+    excelFile = null;
+    parsedContacts = [];
+    totalContactCount = 0;
+  }
 </script>
 
 <PageHeader
   title="Campaign Composer"
-  description="Select an SMTP server, upload contact spreadsheets, filter recipient ranges, compose rich email content, and verify provider delivery rules."
+  description="Select an SMTP server, upload contact spreadsheets, filter recipient ranges, compose rich email content, configure batch or scheduled delivery, and launch campaigns."
 />
 
 {#if loadingConfigs}
@@ -237,9 +390,9 @@
       />
     </Card>
 
-    <!-- Step 4: Subject Line & Delay -->
+    <!-- Step 4: Subject Line & Direct Delay -->
     <Card>
-      <h2 slot="header" class="card-section-title">4. Subject Line & Sending Settings</h2>
+      <h2 slot="header" class="card-section-title">4. Subject Line & Base Timing</h2>
       <SubjectField
         {subject}
         {delay}
@@ -266,9 +419,34 @@
       </div>
     </Card>
 
-    <!-- Step 6: Provider Limits & Guidance -->
+    <!-- Step 6: Batch Delivery Controls -->
     <Card>
-      <h2 slot="header" class="card-section-title">6. SMTP Provider Delivery Limits</h2>
+      <h2 slot="header" class="card-section-title">6. Batch Delivery Engine</h2>
+      <BatchSettings
+        {useBatch}
+        {batchSize}
+        {batchDelay}
+        {emailDelay}
+        recipientCount={computedRange.count}
+        on:change={handleBatchChange}
+      />
+    </Card>
+
+    <!-- Step 7: Scheduled Delivery & Notifications -->
+    <Card>
+      <h2 slot="header" class="card-section-title">7. Schedule Delivery & Completion Alerts</h2>
+      <ScheduleSettings
+        {scheduleEmail}
+        {scheduledTime}
+        {notifyEmail}
+        {notifyBrowser}
+        on:change={handleScheduleChange}
+      />
+    </Card>
+
+    <!-- Step 8: Provider Limits & Delivery Compliance -->
+    <Card>
+      <h2 slot="header" class="card-section-title">8. SMTP Provider Delivery Compliance</h2>
       <ProviderLimitPanel
         {providerInfo}
         {loadingProvider}
@@ -277,45 +455,68 @@
       />
     </Card>
 
-    <!-- Step 7: Composition Readiness & Preview -->
+    <!-- Step 9: Launch & Readiness -->
     <Card>
-      <h2 slot="header" class="card-section-title">7. Campaign Composition Readiness</h2>
+      <h2 slot="header" class="card-section-title">9. Campaign Readiness & Launch</h2>
       <div class="readiness-section">
         <div class="readiness-actions">
           <Button
+            type="button"
             variant="secondary"
             on:click={openPreview}
             disabled={!hasValidContent && !isSubjectValid}
           >
-            🔍 Preview Personalized Email
+            🔍 Preview Personalized Output
+          </Button>
+
+          <Button
+            type="button"
+            variant="primary"
+            disabled={!isCompositionReady || isSending}
+            loading={isSending}
+            on:click={handleSendCampaign}
+          >
+            {isSending ? 'Verifying SMTP & Starting Campaign...' : sendButtonLabel}
           </Button>
         </div>
 
+        {#if sendError}
+          <Alert variant="danger" title="Campaign Delivery Error">
+            <div class="send-error-content">
+              <p>{sendError}</p>
+              <small>If this is an SMTP error, please check credentials or app-password setup under SMTP Configurations.</small>
+            </div>
+          </Alert>
+        {/if}
+
         {#if isCompositionReady}
-          <Alert variant="success" title="Composition Ready for Delivery (Phase 7)">
+          <Alert variant="success" title="Campaign Validated & Ready for Dispatch">
             <div class="ready-summary">
-              <p>All campaign composition parameters are valid and ready:</p>
+              <p>All delivery parameters are validated and ready:</p>
               <ul>
-                <li><strong>SMTP Server:</strong> {selectedConfig?.name} ({selectedConfig?.host})</li>
-                <li><strong>Recipients:</strong> {computedRange.count} contact{computedRange.count === 1 ? '' : 's'} (Row range: {computedRange.start + 1} to {computedRange.end})</li>
-                <li><strong>Content Source:</strong> {htmlTemplateFile ? `Uploaded Template (${htmlTemplateFile.name})` : 'Rich Text Editor HTML'}</li>
-                <li><strong>Subject Line:</strong> <code>{subject}</code></li>
-                <li><strong>Sending Delay:</strong> {delay} seconds per email</li>
+                <li><strong>SMTP Gateway:</strong> {selectedConfig?.name} ({selectedConfig?.host}:{selectedConfig?.port})</li>
+                <li><strong>Target Recipients:</strong> {computedRange.count} contact{computedRange.count === 1 ? '' : 's'} (Workbook rows: {computedRange.start + 1} to {computedRange.end})</li>
+                <li><strong>Message Source:</strong> {htmlTemplateFile ? `Uploaded Template (${htmlTemplateFile.name})` : 'Rich Text Editor HTML'}</li>
+                <li><strong>Subject:</strong> <code>{subject}</code></li>
+                <li><strong>Delivery Pipeline:</strong> {scheduleEmail ? `Scheduled for ${new Date(scheduledTime).toLocaleString()}` : useBatch ? `Batch Mode (${batchSize} emails every ${batchDelay}m)` : `Direct Sequential (${delay}s delay)`}</li>
+                {#if notifyEmail}
+                  <li><strong>Completion Alert:</strong> Summary will be emailed to <code>{notifyEmail}</code></li>
+                {/if}
               </ul>
-              <p class="phase7-notice">
-                ℹ️ <strong>Phase 6 Complete:</strong> Full campaign workspace, Excel parser integration, recipient range arithmetic, editor/template precedence, and provider limit checks are active. Campaign delivery options (immediate, batch, schedule, notifications) will be enabled in Phase 7.
+              <p class="smtp-verify-notice">
+                ℹ️ <strong>SMTP Verification:</strong> When you click dispatch, the server validates the live SMTP connection before launching to ensure deliverability.
               </p>
             </div>
           </Alert>
         {:else}
           <div class="unready-box">
-            <span class="unready-title">⚠️ Composition Incomplete — Please resolve the following steps:</span>
+            <span class="unready-title">⚠️ Composition Checklist — Please resolve the following required steps:</span>
             <ul class="unready-list">
               {#if !selectedConfigId}
                 <li>Select a saved SMTP Configuration in Step 1.</li>
               {/if}
               {#if totalContactCount <= 0}
-                <li>Upload and parse a valid Excel workbook (.xlsx) containing an Email column in Step 2.</li>
+                <li>Upload and parse a valid Excel workbook (.xlsx) with an Email column in Step 2.</li>
               {/if}
               {#if !computedRange.isValid}
                 <li>Correct the Recipient Range selection in Step 3 ({computedRange.errorMessage}).</li>
@@ -327,10 +528,19 @@
                 <li>Enter a positive integer sending delay in Step 4.</li>
               {/if}
               {#if !hasValidContent}
-                <li>Provide message content in the Rich Text Editor or upload an HTML template file in Step 5.</li>
+                <li>Provide message content in the Rich Text Editor or upload an HTML template in Step 5.</li>
+              {/if}
+              {#if !isBatchValid}
+                <li>Provide valid positive integer values for batch size, batch delay, and email delay in Step 6.</li>
+              {/if}
+              {#if !isScheduleValid}
+                <li>Choose a future date and time for scheduled delivery in Step 7.</li>
+              {/if}
+              {#if !isNotifyEmailValid}
+                <li>Enter a valid notification email address format in Step 7.</li>
               {/if}
               {#if !isProviderCapValid}
-                <li>Reduce recipient range count; selected count ({computedRange.count}) exceeds provider cap ({providerInfo?.maxContacts}).</li>
+                <li>Selected recipient count ({computedRange.count}) exceeds provider limit ({providerInfo?.maxContacts}). Reduce recipient range in Step 3.</li>
               {/if}
             </ul>
           </div>
@@ -350,6 +560,16 @@
   previewContact={parsedContacts.length > 0 ? parsedContacts[0] : null}
   selectedConfigName={selectedConfig?.name || ''}
   on:close={closePreview}
+/>
+
+<!-- Success Modal -->
+<SendSuccessModal
+  open={successModalOpen}
+  response={sendResult}
+  configName={selectedConfig?.name || ''}
+  {notifyBrowser}
+  on:close={() => (successModalOpen = false)}
+  on:composeAnother={handleComposeAnother}
 />
 
 <style>
@@ -381,7 +601,9 @@
   }
   .readiness-actions {
     display: flex;
-    justify-content: flex-start;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
   }
   .ready-summary {
     display: grid;
@@ -397,12 +619,21 @@
     display: grid;
     gap: 0.25rem;
   }
-  .phase7-notice {
+  .smtp-verify-notice {
     background: #e0f2fe;
     color: #0369a1;
     padding: 0.5rem 0.75rem;
     border-radius: 0.25rem;
     margin-top: 0.375rem !important;
+  }
+  .send-error-content {
+    display: grid;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+  }
+  .send-error-content p {
+    margin: 0;
+    font-weight: 600;
   }
   .unready-box {
     background: #f8fafc;

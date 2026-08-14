@@ -7,3 +7,6 @@ export { default as PlaceholderHelp } from './PlaceholderHelp.svelte';
 export { default as TemplateUploader } from './TemplateUploader.svelte';
 export { default as ProviderLimitPanel } from './ProviderLimitPanel.svelte';
 export { default as EmailPreviewModal } from './EmailPreviewModal.svelte';
+export { default as BatchSettings } from './BatchSettings.svelte';
+export { default as ScheduleSettings } from './ScheduleSettings.svelte';
+export { default as SendSuccessModal } from './SendSuccessModal.svelte';
