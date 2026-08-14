@@ -13,7 +13,9 @@ The repository has completed the migration foundation and the first two protecte
 | Phase 4 - authentication | Complete | Login/register, server-side protected/public layout guards, cookie-aware session lookup, safe post-login redirects, central 401 handling, app chrome, and logout invalidation are implemented. |
 | Phase 5 - SMTP configuration | Complete | `/configs` loads saved configurations and supports create, view, edit, delete, set-default, test-connection, Gmail app-password help, masked passwords, and refetch-after-mutation behavior. Editing omits `pass` unless the user supplies a replacement. |
 | Phase 6 - compose and upload | Complete | `/send` is fully implemented; `lib/api/email.ts` wraps `POST /parse-excel` and `POST /provider-info`. Reusable components `ConfigSelector`, `ContactUploader`, `ContactPreviewTable`, `EmailRangeSelector`, `SubjectField`, `PlaceholderHelp`, `TemplateUploader`, `ProviderLimitPanel`, and `EmailPreviewModal` handle composition, recipient range math, browser template reading, provider caps, and live personalized previews. `RichTextEditor` is upgraded to a browser-only TipTap editor with HTML source toggle. |
-| Phases 7-14 | Planned, not implemented | Sending modes, dashboard/monitoring, scheduled jobs, reports, old-frontend removal, final polish, documentation, and submission verification remain future work. `/dashboard`, `/scheduled`, and `/reports` are intentionally scaffold pages. |
+| Phase 7 - sending modes | Complete | Full 16-field multipart `POST /send` pipeline is implemented via `buildSendFormData()`; boolean fields serialize as literal `"on"`; `BatchSettings`, `ScheduleSettings`, and `SendSuccessModal` handle batch estimation, scheduling with IANA timezone detection & UTC ISO conversion, email notification tests via `POST /test-notification`, desktop notifications, `activities` store logging, and 3-mode dispatch outcomes. |
+| Phase 8 - dashboard & monitoring | Complete | Adaptive monitoring driven by `GET /dashboard/poll-status` (3s active batch, 10s running scheduled, 30s pending scheduled, 0 requests when idle); `BatchMonitor` provides live progress bar, sent/failed metrics, next-batch display countdown, and Pause/Resume/Cancel (`DELETE /batch-cancel`) controls; `ScheduledJobsPreview` renders up to 5 scheduled jobs in local timezone; `ActivityTimeline` consumes persisted `activities` store. Full timer teardown on route unmount. |
+| Phases 9-14 | Planned, not implemented | Scheduled jobs management, reports, old-frontend removal, final polish, documentation, and submission verification remain future work. `/scheduled` and `/reports` are intentionally scaffold pages. |
 
 Latest code checks for this baseline:
 
@@ -23,7 +25,7 @@ Latest code checks for this baseline:
 
 ### Immediate next work
 
-Implement Phase 7 from `../mainplan.md`. Phase 6 composition workspace is complete. Phase 7 will assembly the 16-field `POST /send` request, delivery controls (immediate, batch, scheduled), notifications, and post-send monitoring.
+Implement Phase 9 from `../mainplan.md` (Scheduled Jobs Management). Phase 8 dashboard and adaptive monitoring workspace is complete. Phase 9 will implement `/scheduled` full management, cancellation with `DELETE /scheduled-jobs/:id`, local timezone formatting, running job cancel guards, and auto-refresh.
 
 ## What this is
 
@@ -110,6 +112,49 @@ Important invariants:
 - For an edit, omit the `pass` key unless a user actually entered a new password. Sending `pass: ""` overwrites the stored credential and breaks later sending.
 - The actual backend endpoints are `POST /config/smtp/test` (full config body) and `POST /config/smtp/:configId/default`; do not copy the stale assignment examples that include `:id/test` or `:id/set-default`.
 - `GET /config/smtp/active` is already exposed by `lib/api/config.ts` for Phase 6's future selector; it may omit `configId` and `configName` when no user default exists, so both remain optional frontend fields.
+
+### Campaign composition (implemented - Phase 6)
+
+`/send` provides the complete campaign preparation workspace. `lib/api/email.ts` interfaces with `POST /parse-excel` (single multipart field `excelFile`) and `POST /provider-info` (multipart fields `smtpHost`, `hasNotification`). Components `ConfigSelector`, `ContactUploader`, `ContactPreviewTable`, `EmailRangeSelector`, `SubjectField`, `PlaceholderHelp`, `TemplateUploader`, `ProviderLimitPanel`, and `EmailPreviewModal` organize composition into focused stages:
+- **Contact parsing:** Parses the uploaded `.xlsx` file via the backend, rendering the first five contacts and the authoritative total count.
+- **Recipient Range math:** Pure utility `computeRecipientRange()` converts 1-based user input (all, first N, or custom row range) into a 0-based `start` and a positive `count`.
+- **Content precedence:** Uploaded HTML template (`htmlTemplate`) takes precedence over rich-text editor HTML (`htmlContent`); editor is made optional when a template is attached.
+- **Live Preview:** Uses `replacePlaceholders()` with actual parsed contact data (falling back to generic placeholder definitions only when no contacts are loaded).
+- **Provider Limit Guard:** Displays provider caps and blocks composition if selected contacts exceed the provider's max allowances.
+
+### Sending modes & delivery execution (implemented - Phase 7)
+
+`/send` enables full campaign dispatch across Immediate Sequential, Batch Processing, and Scheduled Delivery modes:
+- **Centralized 16-field payload builder:** `lib/utils/sendForm.ts` (`buildSendFormData`) produces the exact multipart form payload required by `POST /send` (`configId`, `subject`, `htmlContent`, `delay`, `useBatch`, `batchSize`, `batchDelay`, `emailDelay`, `scheduleEmail`, `scheduledTime`, `notifyEmail`, `notifyBrowser`, `emailRangeStart`, `emailRangeCount`, `excelFile`, `htmlTemplate`).
+- **Boolean string serialization:** Checkbox/boolean fields (`useBatch`, `scheduleEmail`, `notifyBrowser`) are explicitly serialized as literal `"on"` or `"off"` strings, matching the server's strict `=== "on"` checks.
+- **Timezone conversion:** Local datetime strings from `<input type="datetime-local">` are converted to UTC ISO format (`new Date(local).toISOString()`) before transmission, preventing timezone skew between client and server.
+- **Dynamic Provider Limit Reactivity:** Whenever `notifyEmail` is toggled or updated, `getProviderInfo(host, !!notifyEmail)` re-executes to enforce the 1-email deduction reserved for completion notifications on restricted providers (Gmail/Yahoo/Outlook).
+- **Notification alerts & live test:** `POST /test-notification` is wired via `testNotification()` with real-time UI feedback; browser desktop notification permissions are requested on demand.
+- **Activity Store:** `lib/stores/activity.ts` records dispatch events (`started`, `scheduled`) with automatic dual-storage synchronization (`localStorage` and `sessionStorage`).
+- **Discriminated Success Modal:** `SendSuccessModal.svelte` presents dedicated completion views for Scheduled (Job ID, local/UTC timestamps, delivery mode), Batch (batch size, pauses, delays, Job ID), and Immediate modes, with fast routes to `/reports` and `/dashboard`.
+
+### Dashboard and Adaptive Monitoring (implemented - Phase 8)
+
+`/dashboard` is the operational landing workspace that observes active campaigns and background workers:
+- **Adaptive Polling Engine (`lib/stores/polling.ts`):** Polling cadence is strictly dictated by the backend's `GET /dashboard/poll-status` response:
+  - `3000ms` when an active batch job is running (`hasActiveBatch`).
+  - `10000ms` when a scheduled job is executing (`hasRunningScheduledJobs`).
+  - `30000ms` when pending scheduled jobs exist (`hasScheduledJobs`).
+  - **Zero requests / idle** when `pollNeeded === false` (no ongoing background timers).
+  - Handles the error-path 200 response (`pollNeeded: false` with `error` string) by recording `serviceDegraded` without declaring false healthy idleness.
+  - Guarantees **complete timer teardown** in Svelte `onDestroy()` and on route navigation. Exactly one timer handle is active at any time.
+- **Active Batch Monitor (`BatchMonitor.svelte`):**
+  - Consumes authoritative batch data from `GET /dashboard/data` and `GET /batch-status`.
+  - Truthful progress bar derived from `(emailsSent + emailsFailed) / totalContacts` with ARIA `role="progressbar"`.
+  - Metrics breakdown: Sent, Failed, Current Batch / Total Batches, Batch size and interval delays.
+  - Isolated display countdown derived from `nextBatchTime` (runs on 1s interval only while job is `Running`, terminated on pause, completion, or teardown).
+  - Batch Controls: **Pause** (`POST /batch-pause`), **Resume** (`POST /batch-resume`), and **Cancel** (`DELETE /batch-cancel`, protected by confirmation dialog). Immediately triggers `triggerStateCheck()` on mutation.
+- **Scheduled Jobs Preview (`ScheduledJobsPreview.svelte`):**
+  - Renders up to 5 upcoming scheduled campaigns from `GET /dashboard/data`.
+  - Converts UTC ISO schedule times to the user's local timezone.
+  - Displays recipient count, batch vs sequential execution tags, status badges with accessible non-color-only text, and alert email indicators.
+- **Recent Activity Timeline (`ActivityTimeline.svelte`):**
+  - Connects to the persisted `activities` store (`lib/stores/activity.ts`), displaying chronological dispatch events across user sessions with clear event badge icons and timestamps.
 
 ### Backend structure (`src/`)
 

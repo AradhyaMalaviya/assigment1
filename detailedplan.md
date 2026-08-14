@@ -915,6 +915,36 @@ Each phase lists exact actions, dependencies, likely failure points, and an exit
 **Failure points:** sending the raw `datetime-local` string (campaigns fire at the wrong hour); `"true"` instead of `"on"` (batch/schedule silently ignored, emails send immediately); a misspelled field name defaulting silently server-side.
 **Exit gate:** capture `POST /send` in the network tab and verify all sixteen fields byte-for-byte. Schedule a job two minutes out and confirm it fires at the right wall-clock time. Confirm each of the three response modes renders correctly.
 
+#### 9.7a Phase 7 Verified Implementation & Completion Record
+
+**Implementation Date:** 2026-08-14  
+**Status:** Complete & Verified
+
+1. **Centralized Payload Assembly:**
+   - Implemented `lib/utils/sendForm.ts` with `buildSendFormData(payload)` to assemble all sixteen multipart fields required by `src/routes/send.ts` in one auditable location.
+   - Guaranteed boolean string serialization (`useBatch`, `scheduleEmail`, `notifyBrowser`) as literal `"on"` or `"off"` (server explicitly matches `=== "on"`).
+   - Timezone conversion transforms user's local `<input type="datetime-local">` value into UTC ISO string format (`new Date(localTime).toISOString()`) before passing as `scheduledTime`.
+
+2. **Delivery Components & Features:**
+   - `lib/components/email/BatchSettings.svelte`: Checkbox toggle for batch mode, positive integer inputs for `batchSize`, `batchDelay` (minutes), `emailDelay` (seconds), and real-time calculated batch summary (`totalBatches`, `totalTimeHours`, email delays, pause durations).
+   - `lib/components/email/ScheduleSettings.svelte`: Checkbox toggle for future delivery, `datetime-local` input with future-time validation, detected IANA timezone display, completion notification email input with live test dispatch (`POST /test-notification`), and desktop browser notification permission integration.
+   - `lib/components/email/SendSuccessModal.svelte`: Accessible modal rendering discriminated outcome cards for all 3 backend response shapes:
+     * Scheduled Mode: Job ID, Local and UTC formatted launch times, delivery mode, config used.
+     * Batch Mode: Batch size, batch pause duration, individual email delay, config used, Job ID.
+     * Immediate Mode: Direct sequential delivery status, recipient count, config used.
+   - `lib/stores/activity.ts`: Timeline store with `addActivity(type, message)` logging and dual-storage persistence (`localStorage` & `sessionStorage`).
+
+3. **Reactivity & Provider Compliance:**
+   - In `routes/(app)/send/+page.svelte`, toggling `notifyEmail` automatically re-queries `POST /provider-info` with `hasNotification = !!notifyEmail`, adjusting `maxContacts` to account for the single reserved notification email.
+   - Pre-flight validation blocks invalid dispatches (missing config, empty workbook, bad range, missing subject, empty content, past schedule time, invalid email, or recipient count exceeding provider cap).
+   - Dynamic button states (`Schedule Campaign` / `Send Campaign (Batch Mode)` / `Send Campaign Immediately`) with determinate SMTP verification feedback and verbatim server error presentation.
+
+4. **Code Quality & Build Verification:**
+   - Backend `npm.cmd run typecheck`: 0 errors.
+   - Frontend `npm.cmd run check`: 0 errors, 0 warnings.
+   - Frontend `npm.cmd run lint`: 0 errors, 0 warnings.
+   - Frontend `npm.cmd run build`: 100% successful with `@sveltejs/adapter-node`.
+
 ### Phase 8 — Dashboard And Monitoring
 **Depends on:** Phase 7 (needs real jobs to observe).
 1. `/dashboard` as the post-login landing route.
@@ -930,6 +960,30 @@ Each phase lists exact actions, dependencies, likely failure points, and an exit
 
 **Failure points:** polling forever when idle (the explicit anti-goal of the backend's `pollNeeded` design); leaked intervals accumulating across navigations; treating the error-path 200 response (§7.5) as "nothing is running".
 **Exit gate:** network tab shows **zero** dashboard requests while idle; starting a batch begins 3 s polling; completion returns polling to idle; navigating away leaves no live timers.
+
+#### 9.8a Phase 8 Verified Implementation & Completion Record
+
+**Implementation Date:** 2026-08-14  
+**Status:** Complete & Verified
+
+1. **Adaptive Polling Lifecycle (`lib/stores/polling.ts`):**
+   - Implemented `startAdaptivePolling()`, `stopAdaptivePolling()`, and `triggerStateCheck()` directly consuming `GET /dashboard/poll-status`.
+   - Strictly enforces backend-dictated adaptive cadences: 3,000ms for active batch, 10,000ms for running scheduled jobs, 30,000ms for pending scheduled jobs.
+   - Zero continued network requests while idle (`pollNeeded === false`).
+   - Degraded service handling: stores `serviceDegraded` when backend returns HTTP 200 with `error` string, avoiding false healthy idle conclusions.
+   - Guaranteed timer teardown in `onDestroy()` and on route transitions, preventing interval leaks.
+
+2. **Dashboard Component Architecture (`lib/components/dashboard/`):**
+   - `BatchMonitor.svelte`: Live progress bar (`(sent + failed) / totalContacts`), `role="progressbar"` with ARIA attributes, sent/failed metrics, batch index position, next-batch display countdown derived from `nextBatchTime`, and controls (Pause via `POST /batch-pause`, Resume via `POST /batch-resume`, and Cancel via `DELETE /batch-cancel` with confirmation dialog).
+   - `ScheduledJobsPreview.svelte`: Renders up to 5 upcoming scheduled campaigns from `GET /dashboard/data`, converts UTC ISO timestamps to local timezone, and includes status and execution badges.
+   - `ActivityTimeline.svelte`: Displays chronological dispatch and operational events from the persistent `activities` store with clean type icons and timestamps.
+   - `routes/(app)/dashboard/+page.svelte`: Operational landing page with live polling status indicators, overview metrics, 2-column responsive layout, and quick action shortcuts.
+
+3. **Code Quality & Build Verification:**
+   - Backend `npm.cmd run typecheck`: 0 errors.
+   - Frontend `npm.cmd run check`: 0 errors, 0 warnings.
+   - Frontend `npm.cmd run lint`: 0 errors, 0 warnings.
+   - Frontend `npm.cmd run build`: 100% successful with `@sveltejs/adapter-node`.
 
 ### Phase 9 — Scheduled Jobs
 **Depends on:** Phase 7.
