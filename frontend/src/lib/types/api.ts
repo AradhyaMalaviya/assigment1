@@ -181,3 +181,10 @@ export interface PollStatus {
   error?: string;
 }
 export type PollStatusResponse = ApiResponse<PollStatus>;
+
+export interface DashboardData {
+  batch: BatchStatus | null;
+  scheduledJobs: ScheduledJob[];
+  timestamp: string;
+}
+export type DashboardDataResponse = ApiResponse<DashboardData>;
