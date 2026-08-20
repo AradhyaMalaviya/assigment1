@@ -17,7 +17,8 @@ The repository has completed the migration foundation and the first two protecte
 | Phase 8 - dashboard & monitoring | Complete | Adaptive monitoring driven by `GET /dashboard/poll-status` (3s active batch, 10s running scheduled, 30s pending scheduled, 0 requests when idle); `BatchMonitor` provides live progress bar, sent/failed metrics, next-batch display countdown, and Pause/Resume/Cancel (`DELETE /batch-cancel`) controls; `ScheduledJobsPreview` renders up to 5 scheduled jobs in local timezone; `ActivityTimeline` consumes persisted `activities` store. Full timer teardown on route unmount. |
 | Phase 9 - scheduled jobs | Complete | `/scheduled` management route implemented; `lib/api/scheduled.ts` wraps `GET /scheduled-jobs` and `DELETE /scheduled-jobs/:id`. Features `ScheduledJobTable` (desktop) and `ScheduledJobCard` (mobile), local timezone timestamp formatting, batch/sequential badges, cancel confirmation modal, locked cancel on `running` jobs (preventing 404s), 60s scheduler interval notice, search/status filters, and summary metrics. |
 | Phase 10 - reports & analytics | Complete | `/reports` delivery logs & analytics implemented; `lib/api/report.ts` wraps `GET /report`, `GET /report/export/csv`, `GET /report/export/json`, and `DELETE /report/clear`. Features `ReportStatsCards` (Total, Sent, Failed, Errors), `ReportToolbar` with debounced search, status/date filters, auto-refresh badge, manual refresh, CSV/JSON blob downloads, irreversible Clear Logs behind `ConfirmDialog`, `ReportTable` (desktop 8-column sortable table), `ReportCard` (mobile stacked cards), pure utility `reportFilters.ts` with 24 unit tests, and lifecycle-scoped polling active only when campaigns/jobs are executing. |
-| Phases 11-14 | Planned, not implemented | Old-frontend removal, final polish/accessibility audit, documentation, and submission verification remain future work. Legacy `public/` is preserved for Phase 11. |
+| Phase 11 - old frontend removal | Complete | Legacy `public/` directory deleted; static file serving middleware (`serveStatic`), `src/routes/index.ts`, legacy `/login` static route, root redirect logic, and stale public path bypasses removed from `src/app.ts` and `src/middleware/auth.ts`. Backend transitioned to a pure JSON API server (`GET /` returns JSON 404). Updated `.github/labeler.yml` to point `frontend` to `frontend/**/*`. Sample workbook verified at `frontend/static/samples/sample-contacts.xlsx`. |
+| Phases 12-14 | Planned, not implemented | Final polish/accessibility audit, documentation, and submission verification remain future work. |
 
 Latest code checks for this baseline:
 
@@ -27,7 +28,7 @@ Latest code checks for this baseline:
 
 ### Immediate next work
 
-Implement Phase 11 from `detailedplan.md` (Old Frontend Removal). Phase 10 reports workspace is complete. Phase 11 will remove the legacy `public/` directory and unmount static routes from the backend once verified.
+Implement Phase 12 from `detailedplan.md` (Accessibility, Responsive, and Polish). Phase 11 old frontend removal is complete. Phase 12 will perform a comprehensive multi-breakpoint audit (375px, 768px, 1440px), verify semantic landmarks, ARIA compliance, modal focus management, and keyboard accessibility across all routes.
 
 ## What this is
 

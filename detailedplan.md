@@ -1044,19 +1044,22 @@ Each phase lists exact actions, dependencies, likely failure points, and an exit
 - Unit tests (`reportFilters.ts`): 24/24 tests passed (0 failures).
 - Exit gate satisfied: stats match raw response; client search/status/date filters and sorts verified with 0 server requests; exports download real files; clear-logs empties table; usable at 375px.
 
-### Phase 11 — Old Frontend Removal
-**Depends on:** Phases 4–10 **all** complete. Do not run this early.
-1. Verify `frontend/static/samples/sample-contacts.xlsx` exists and downloads from the new UI.
-2. Walk §8 and confirm every numbered item.
-3. Delete `public/index.html`, `public/login.html`, `public/css/style.css`, `public/js/app.js`, `public/samples/`, and the `public/` directory.
-4. Delete `src/routes/index.ts` and its mount in `src/app.ts`.
-5. Apply the remaining §6.1 steps 4, 6, 7 (static mounts, `GET /login`, `notFound`, public-path lists, `"./public"` in `initializeDirectories`).
-6. `grep -ri "public/" src/` → no results. `grep -r "serveStatic" src/` → no results.
-7. Restart the backend; confirm `GET /` returns JSON 404 and every API route still works.
-8. Update `.github/labeler.yml` frontend globs and remove the `index.ts` reference.
+### Phase 11 — Old Frontend Removal (Completed & Verified 2026-08-20)
+**Depends on:** Phases 4–10 **all** complete.
+1. Verified `frontend/static/samples/sample-contacts.xlsx` exists (10,119 bytes) and is served from `/samples/sample-contacts.xlsx`.
+2. Confirmed 100% feature parity with §8 across all 7 frontend routes (`/login`, `/register`, `/dashboard`, `/send`, `/configs`, `/scheduled`, `/reports`).
+3. Deleted `public/index.html`, `public/login.html`, `public/css/style.css`, `public/js/app.js`, `public/samples/`, and the entire `public/` directory.
+4. Deleted `src/routes/index.ts` and removed `import indexRoutes` and `app.route("/", indexRoutes)` from `src/app.ts`.
+5. Removed `serveStatic` middleware and mounts (`/public/*`, `/css/*`, `/js/*`, `GET /login`) from `src/app.ts`.
+6. Removed `"./public"` from `initializeDirectories()` in `src/app.ts`.
+7. Updated `publicPaths` in `src/app.ts` and `src/middleware/auth.ts` to `["/auth/"]` / `["/auth"]`.
+8. Removed root path redirect logic (`if (path === "/")`) so root requests fall through to standard JSON 404.
+9. Updated `notFound` in `src/app.ts` to return uniform JSON 404 `{ message: "Endpoint not found" }`.
+10. Updated `onError` in `src/app.ts` to return JSON 401 `{ success: false, message: "Authentication required" }` instead of redirecting to `/login`.
+11. Updated `.github/labeler.yml` frontend globs to `frontend/**/*` and removed stale `bun.lock` and `index.ts` references.
+12. Static audits verified: `grep -ri "public/" src/` $\rightarrow$ 0 results; `grep -r "serveStatic" src/` $\rightarrow$ 0 results; `grep -r "indexRoutes" src/` $\rightarrow$ 0 results.
 
-**Failure points:** deleting `public/` before rescuing the sample file; leaving a dangling `indexRoutes` import that crashes startup; `notFound` still redirecting to a `/login` that no longer exists.
-**Exit gate:** backend starts clean with no `public/` on disk; the full frontend still works; the Success Indicator "No old frontend code remains" is objectively true.
+**Exit gate:** Backend starts clean with no `public/` on disk; `GET /` returns JSON 404; all SvelteKit frontend flows remain operational; the Success Indicator "No old frontend code remains" is objectively true.
 
 ### Phase 12 — Accessibility, Responsive, And Polish
 **Depends on:** Phase 11.
