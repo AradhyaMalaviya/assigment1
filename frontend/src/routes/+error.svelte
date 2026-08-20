@@ -2,6 +2,10 @@
   import { page } from '$app/stores';
 </script>
 
+<svelte:head>
+  <title>Error {$page.status} | Bulk Email Sender</title>
+</svelte:head>
+
 <main>
   <h1>{$page.status}</h1>
   <p>{$page.error?.message ?? 'The requested page could not be loaded.'}</p>

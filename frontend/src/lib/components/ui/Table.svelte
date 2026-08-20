@@ -30,6 +30,7 @@
     <thead
       ><tr
         >{#each columns as column (column.key)}<th
+            scope="col"
             aria-sort={sortKey === column.key ? direction : 'none'}
             >{#if column.sortable}<button type="button" on:click={() => sort(column)}
                 >{column.label}<ArrowDownUp size={14} /></button

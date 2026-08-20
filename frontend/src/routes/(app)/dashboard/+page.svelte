@@ -45,7 +45,6 @@
         }
       }
     } catch (err) {
-      console.warn('Error fetching dashboard details:', err);
       fetchError = err instanceof Error ? err.message : 'Failed to fetch dashboard data';
     } finally {
       initialLoading = false;

@@ -65,8 +65,8 @@ async function executePollCycle(): Promise<void> {
       if (currentPollCallback) {
         try {
           await currentPollCallback();
-        } catch (callbackErr) {
-          console.warn('Dashboard data fetch warning:', callbackErr);
+        } catch {
+          // Ignore transient callback failures
         }
       }
 
@@ -84,7 +84,6 @@ async function executePollCycle(): Promise<void> {
     }
   } catch (err) {
     if (!isPollingActive || sequence !== pollSequence) return;
-    console.warn('Poll status error:', err);
     serviceDegraded.set(err instanceof Error ? err.message : 'Failed to reach polling service');
     isPolling.set(false);
     pollInterval.set(null);

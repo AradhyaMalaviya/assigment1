@@ -19,8 +19,8 @@ function loadInitialActivities(): Activity[] {
     if (stored) {
       return JSON.parse(stored);
     }
-  } catch (e) {
-    console.error('Failed to load initial activities from storage:', e);
+  } catch {
+    // Ignore storage parse errors
   }
   return [];
 }
@@ -44,8 +44,8 @@ export const activities = {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
           sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        } catch (e) {
-          console.error('Failed to persist activity to storage:', e);
+        } catch {
+          // Ignore storage persistence errors
         }
       }
       return updated;
@@ -57,8 +57,8 @@ export const activities = {
       try {
         localStorage.removeItem(STORAGE_KEY);
         sessionStorage.removeItem(STORAGE_KEY);
-      } catch (e) {
-        console.error('Failed to clear activity storage:', e);
+      } catch {
+        // Ignore storage clear errors
       }
     }
   }

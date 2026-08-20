@@ -97,8 +97,8 @@
           if (permission !== 'granted') {
             addToast('Desktop notifications were not granted in browser settings.', 'warning', 'Permission Notice');
           }
-        } catch (e) {
-          console.error('Error requesting notification permission:', e);
+        } catch {
+          // Ignore notification permission query exceptions
         }
       }
     }

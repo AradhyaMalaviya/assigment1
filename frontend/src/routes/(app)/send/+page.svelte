@@ -338,6 +338,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Campaign Composer | Bulk Email Sender</title>
+</svelte:head>
+
 <PageHeader
   title="Campaign Composer"
   description="Select an SMTP server, upload contact spreadsheets, filter recipient ranges, compose rich email content, configure batch or scheduled delivery, and launch campaigns."

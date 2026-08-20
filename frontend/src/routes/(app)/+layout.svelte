@@ -41,12 +41,14 @@
   }
 </script>
 
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
 <Navbar onMenuToggle={() => (sidebarOpen = !sidebarOpen)}>
   <UserMenu name={data.user.name} email={data.user.email} onLogout={handleLogout} />
 </Navbar>
 <div class="app-shell">
   <Sidebar open={sidebarOpen} onNavigate={closeSidebar} />
-  <main><slot /></main>
+  <main id="main-content" tabindex="-1"><slot /></main>
 </div>
 
 <style>

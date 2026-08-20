@@ -27,8 +27,8 @@
           body: response.message || `Your campaign for ${response.contactCount} contacts has been scheduled.`,
           icon: '/favicon.png'
         });
-      } catch (e) {
-        console.error('Error displaying desktop notification:', e);
+      } catch {
+        // Ignore desktop notification creation errors
       }
     }
   }

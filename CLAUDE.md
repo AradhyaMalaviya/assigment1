@@ -18,7 +18,8 @@ The repository has completed the migration foundation and the first two protecte
 | Phase 9 - scheduled jobs | Complete | `/scheduled` management route implemented; `lib/api/scheduled.ts` wraps `GET /scheduled-jobs` and `DELETE /scheduled-jobs/:id`. Features `ScheduledJobTable` (desktop) and `ScheduledJobCard` (mobile), local timezone timestamp formatting, batch/sequential badges, cancel confirmation modal, locked cancel on `running` jobs (preventing 404s), 60s scheduler interval notice, search/status filters, and summary metrics. |
 | Phase 10 - reports & analytics | Complete | `/reports` delivery logs & analytics implemented; `lib/api/report.ts` wraps `GET /report`, `GET /report/export/csv`, `GET /report/export/json`, and `DELETE /report/clear`. Features `ReportStatsCards` (Total, Sent, Failed, Errors), `ReportToolbar` with debounced search, status/date filters, auto-refresh badge, manual refresh, CSV/JSON blob downloads, irreversible Clear Logs behind `ConfirmDialog`, `ReportTable` (desktop 8-column sortable table), `ReportCard` (mobile stacked cards), pure utility `reportFilters.ts` with 24 unit tests, and lifecycle-scoped polling active only when campaigns/jobs are executing. |
 | Phase 11 - old frontend removal | Complete | Legacy `public/` directory deleted; static file serving middleware (`serveStatic`), `src/routes/index.ts`, legacy `/login` static route, root redirect logic, and stale public path bypasses removed from `src/app.ts` and `src/middleware/auth.ts`. Backend transitioned to a pure JSON API server (`GET /` returns JSON 404). Updated `.github/labeler.yml` to point `frontend` to `frontend/**/*`. Sample workbook verified at `frontend/static/samples/sample-contacts.xlsx`. |
-| Phases 12-14 | Planned, not implemented | Final polish/accessibility audit, documentation, and submission verification remain future work. |
+| Phase 12 - accessibility & polish | Complete | Comprehensive accessibility & responsive pass completed. Added skip-to-content keyboard link, `prefers-reduced-motion` media queries, `<svelte:head><title>` on all routes and error boundaries, `<th scope="col">` on all table headers, form label/aria-describedby linkages, modal focus trap & `Esc` support, non-color-only status badges, progress bar ARIA attributes, and cleaned all residual console logging (51/51 automated a11y tests passing). |
+| Phases 13-14 | Planned, not implemented | Project documentation & final submission verification remain future work. |
 
 Latest code checks for this baseline:
 
@@ -28,7 +29,7 @@ Latest code checks for this baseline:
 
 ### Immediate next work
 
-Implement Phase 12 from `detailedplan.md` (Accessibility, Responsive, and Polish). Phase 11 old frontend removal is complete. Phase 12 will perform a comprehensive multi-breakpoint audit (375px, 768px, 1440px), verify semantic landmarks, ARIA compliance, modal focus management, and keyboard accessibility across all routes.
+Implement Phase 13 from `detailedplan.md` (Documentation & CI/CD). Phase 12 accessibility & polish is complete. Phase 13 will transform the root `README.md` into a comprehensive project guide, update `CONTRIBUTING.md`, `.env.example`, `frontend/.env.example`, `.github/workflows/pr-checks.yml`, and capture UI screenshots.
 
 ## What this is
 

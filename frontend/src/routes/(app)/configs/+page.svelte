@@ -57,6 +57,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>SMTP Configurations | Bulk Email Sender</title>
+</svelte:head>
+
 <PageHeader title="SMTP configurations" description="Manage the accounts used to send campaigns.">
   <Button onClick={() => (formModal = { mode: 'create' })}>Add configuration</Button>
 </PageHeader>

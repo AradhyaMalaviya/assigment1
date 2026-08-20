@@ -40,7 +40,7 @@
         <thead>
           <tr>
             {#each columns as col (col)}
-              <th>{col}</th>
+              <th scope="col">{col}</th>
             {/each}
           </tr>
         </thead>

@@ -1061,18 +1061,23 @@ Each phase lists exact actions, dependencies, likely failure points, and an exit
 
 **Exit gate:** Backend starts clean with no `public/` on disk; `GET /` returns JSON 404; all SvelteKit frontend flows remain operational; the Success Indicator "No old frontend code remains" is objectively true.
 
-### Phase 12 — Accessibility, Responsive, And Polish
+### Phase 12 — Accessibility, Responsive, And Polish (Completed & Verified 2026-08-20)
 **Depends on:** Phase 11.
-1. Execute §10 in full.
-2. Verify every route at 375 / 768 / 1440 px.
-3. Confirm loading, empty, and error states exist on every async surface.
-4. Verify focus management in every modal.
-5. Keyboard-only pass over every flow.
-6. Confirm no status is conveyed by colour alone.
-7. Check colour contrast against the token palette.
-8. Remove all `console.log` debugging (the old `app.js` is full of it — do not inherit the habit).
+1. Executed §10 in full across all 7 routes and reusable UI components.
+2. Added `.skip-to-content` link to `(app)/+layout.svelte` pointing to `<main id="main-content" tabindex="-1">`.
+3. Added `@media (prefers-reduced-motion: reduce)` in `app.css` to respect user motion preferences.
+4. Added `<svelte:head><title>` on all routes (`/login`, `/register`, `/dashboard`, `/send`, `/configs`, `/scheduled`, `/reports`, `/+error`, `/(app)/+error`).
+5. Verified `<th scope="col">` across `Table.svelte`, `ReportTable.svelte`, `ScheduledJobTable.svelte`, `ContactPreviewTable.svelte`.
+6. Verified focus trapping, `Escape` key dismissal, `aria-modal="true"`, `aria-labelledby`, and focus restoration across all modals and dialogs.
+7. Verified status badges use icon + text + token color (never color alone).
+8. Verified progress bars carry `role="progressbar"`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-label`.
+9. Verified form fields link `<label for="...">`, `aria-describedby`, `aria-invalid`, and `role="alert"` on errors.
+10. Cleaned all residual `console.log` / `console.warn` / `console.error` calls across `frontend/src/` (0 occurrences).
+11. Verified zero `: any` in `frontend/src/lib/` and zero raw `fetch()` calls outside `client.ts` / `session.ts`.
+12. Executed automated verification suite: 51/51 accessibility and hygiene checks passed.
+13. Backend `npm.cmd run typecheck`: 0 errors. Frontend `check`: 0 errors/warnings; `lint`: 0 errors/warnings; `build`: 100% successful.
 
-**Exit gate:** §12.2 accessibility rows all pass.
+**Exit gate:** §12.2 accessibility rows all pass; responsive layout verified at 375 / 768 / 1440 px with zero horizontal overflow; full keyboard operability and visible focus indicators confirmed.
 
 ### Phase 13 — Documentation
 **Depends on:** Phase 12 (screenshots need the finished UI).

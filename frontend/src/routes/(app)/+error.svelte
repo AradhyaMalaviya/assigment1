@@ -2,6 +2,10 @@
   import { page } from '$app/stores';
 </script>
 
+<svelte:head>
+  <title>Workspace Error | Bulk Email Sender</title>
+</svelte:head>
+
 <section>
   <h1>Unable to load this workspace</h1>
   <p>{$page.error?.message ?? 'Please try again.'}</p>

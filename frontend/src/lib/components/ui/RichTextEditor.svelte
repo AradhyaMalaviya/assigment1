@@ -66,8 +66,8 @@
         }
       }) as unknown as typeof editor;
       mounted = true;
-    } catch (err) {
-      console.error('Failed to load TipTap editor, falling back to textarea:', err);
+    } catch {
+      // Fallback gracefully to accessible textarea
       mounted = false;
     }
   });

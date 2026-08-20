@@ -42,7 +42,6 @@
         jobs = [];
       }
     } catch (err) {
-      console.warn('Failed to load scheduled jobs:', err);
       fetchError = err instanceof Error ? err.message : 'Failed to retrieve scheduled jobs';
       jobs = [];
     } finally {
