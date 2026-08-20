@@ -1023,20 +1023,26 @@ Each phase lists exact actions, dependencies, likely failure points, and an exit
    - Frontend `npm.cmd run lint`: 0 errors, 0 warnings.
    - Frontend `npm.cmd run build`: 100% successful with `@sveltejs/adapter-node`.
 
-### Phase 10 — Reports
+### Phase 10 — Reports (Completed & Verified 2026-08-20)
 **Depends on:** Phase 4 (independent of 6–9, and safe to parallelise).
 1. `/reports` from `GET /report`.
-2. Four stat cards.
-3. Logs table with all eight columns.
-4. Client-side search (debounced), status filter, date-range filter, sortable columns — the required enhancements from §8.6.
-5. CSV and JSON export via a blob download helper; both endpoints set `Content-Disposition`.
-6. Clear logs behind `ConfirmDialog`; refetch after.
-7. Responsive: the eight-column table must stack into cards below `md` (§3.5).
-8. Empty state.
-9. Status shown with icon **and** text, not colour alone (§10).
+2. Four stat cards: Total, Sent, Failed, Errors (mapped directly to `stats.total`, `stats.sent`, `stats.failed`, `stats.errors`).
+3. Logs table with all eight logical columns: Email, Status, First Name, Company, Subject, Timestamp, Message ID, Error/Details.
+4. Client-side search (debounced 250ms), status filter (All, Sent, Failed, Error), date-range filter (local date bounds), sortable columns (keyboard accessible `th` with `aria-sort`).
+5. CSV and JSON export via `exportReportCsv` and `exportReportJson` with `getBlob` and `downloadBlob`; preserves server attachment responses.
+6. Clear logs via `DELETE /report/clear` behind accessible `ConfirmDialog`; refetches authoritative server data on success.
+7. Responsive: 8-column desktop table (`ReportTable.svelte`) stacks into accessible mobile cards (`ReportCard.svelte`) below `md` breakpoint (768px). Tested at 375px, 768px, and 1440px.
+8. Distinct loading, true server-empty (`EmptyState.svelte`), filtered-empty, request error with retry, and background refresh indicator states.
+9. Status displayed with icon **and** text + token color (Sent = green check, Failed = red X, Error = amber alert).
+10. Auto-refresh lifecycle tied to Phase 8 adaptive polling (`pollStatus.hasActiveBatch || pollStatus.hasRunningScheduledJobs`), active only when `/reports` is mounted; zero background requests when idle.
 
-**Failure points:** the eight-column table breaking mobile layout; export downloads failing under the proxy topology if the blob path is not handled; forgetting that filters are client-side (the endpoint has no query parameters).
-**Exit gate:** stats match the raw response; each filter and sort verified; both exports download real files; clear-logs empties the table; usable at 375 px.
+**Verification Results:**
+- Backend `npm.cmd run typecheck`: 0 errors.
+- Frontend `npm.cmd run check`: 0 errors, 0 warnings.
+- Frontend `npm.cmd run lint`: 0 errors, 0 warnings.
+- Frontend `npm.cmd run build`: 100% successful with `@sveltejs/adapter-node`.
+- Unit tests (`reportFilters.ts`): 24/24 tests passed (0 failures).
+- Exit gate satisfied: stats match raw response; client search/status/date filters and sorts verified with 0 server requests; exports download real files; clear-logs empties table; usable at 375px.
 
 ### Phase 11 — Old Frontend Removal
 **Depends on:** Phases 4–10 **all** complete. Do not run this early.

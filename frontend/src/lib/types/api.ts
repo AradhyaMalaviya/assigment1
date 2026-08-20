@@ -200,3 +200,18 @@ export interface DashboardData {
   timestamp: string;
 }
 export type DashboardDataResponse = ApiResponse<DashboardData>;
+
+export interface ReportStats {
+  total: number;
+  sent: number;
+  failed: number;
+  errors: number;
+}
+
+export interface ReportData {
+  logs: EmailLog[];
+  stats: ReportStats;
+}
+
+export type ReportResponse = ApiResponse<ReportData>;
+
