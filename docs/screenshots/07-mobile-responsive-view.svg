@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" style="background:#0f172a;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif">
+  <!-- Title / Label -->
+  <g transform="translate(64, 40)">
+    <text x="0" y="24" fill="#f8fafc" font-size="24" font-weight="700">Responsive Mobile Viewport (375px Breakpoint)</text>
+    <text x="0" y="46" fill="#94a3b8" font-size="13">Mobile-optimized navigation drawer, stacked metric cards, and responsive report cards</text>
+  </g>
+
+  <!-- Phone Frame 1: Dashboard (Left) -->
+  <g transform="translate(160, 90)">
+    <!-- Device Outline -->
+    <rect width="375" height="660" rx="36" fill="#1e293b" stroke="#475569" stroke-width="4"/>
+    <rect x="12" y="12" width="351" height="636" rx="26" fill="#0f172a"/>
+    
+    <!-- Phone Notch / Status bar -->
+    <rect x="110" y="18" width="155" height="18" rx="9" fill="#1e293b"/>
+    <text x="35" y="32" fill="#94a3b8" font-size="11" font-weight="600">09:41</text>
+    <text x="330" y="32" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="end">100% 🔋</text>
+
+    <!-- App Mobile Header -->
+    <g transform="translate(24, 48)">
+      <rect width="28" height="28" rx="6" fill="#4f46e5"/>
+      <path d="M7 10 L14 15 L21 10 M7 10 L21 10 L21 19 L7 19 Z" stroke="#ffffff" stroke-width="1.5" fill="none"/>
+      <text x="36" y="19" fill="#ffffff" font-size="15" font-weight="700">Bulk Sender</text>
+      <!-- Hamburger -->
+      <g transform="translate(295, 4)">
+        <line x1="0" y1="4" x2="20" y2="4" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="10" x2="20" y2="10" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="16" x2="20" y2="16" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+      </g>
+    </g>
+
+    <!-- Mobile Batch Card -->
+    <g transform="translate(24, 90)">
+      <rect width="327" height="230" rx="12" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5"/>
+      <g transform="translate(16, 16)">
+        <rect width="90" height="22" rx="4" fill="#1d4ed8"/>
+        <text x="45" y="15" fill="#ffffff" font-size="10" font-weight="700" text-anchor="middle">⚡ ACTIVE BATCH</text>
+        
+        <text x="0" y="44" fill="#f8fafc" font-size="14" font-weight="700">Q3 Product Launch</text>
+        <text x="0" y="60" fill="#94a3b8" font-size="11">Progress: 64/100 (64%) • Batch 4/5</text>
+
+        <!-- Progress bar -->
+        <rect x="0" y="70" width="295" height="10" rx="5" fill="#0f172a"/>
+        <rect x="0" y="70" width="188" height="10" rx="5" fill="#3b82f6"/>
+
+        <!-- Mini Stats Grid -->
+        <g transform="translate(0, 95)">
+          <rect x="0" y="0" width="140" height="46" rx="6" fill="#0f172a"/>
+          <text x="10" y="18" fill="#94a3b8" font-size="10">Sent Emails</text>
+          <text x="10" y="36" fill="#10b981" font-size="14" font-weight="700">62 Delivered</text>
+
+          <rect x="155" y="0" width="140" height="46" rx="6" fill="#0f172a"/>
+          <text x="10" y="18" fill="#94a3b8" font-size="10">Failed</text>
+          <text x="10" y="36" fill="#f43f5e" font-size="14" font-weight="700">2 Bounced</text>
+        </g>
+
+        <!-- Controls -->
+        <g transform="translate(0, 152)">
+          <rect x="0" y="0" width="140" height="34" rx="6" fill="#eab308"/>
+          <text x="70" y="22" fill="#0f172a" font-size="12" font-weight="600" text-anchor="middle">⏸ Pause</text>
+
+          <rect x="155" y="0" width="140" height="34" rx="6" fill="#dc2626"/>
+          <text x="225" y="22" fill="#ffffff" font-size="12" font-weight="600" text-anchor="middle">✖ Cancel</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Mobile Queue Preview -->
+    <g transform="translate(24, 335)">
+      <text x="0" y="18" fill="#f8fafc" font-size="14" font-weight="700">Scheduled Queue (3)</text>
+      
+      <rect x="0" y="28" width="327" height="64" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="12" y="48" fill="#f8fafc" font-size="12" font-weight="600">Weekly Tech Newsletter</text>
+      <text x="12" y="66" fill="#94a3b8" font-size="10">Aug 22, 09:00 AM • 450 contacts</text>
+      <rect x="245" y="44" width="70" height="20" rx="4" fill="#0284c7"/>
+      <text x="280" y="58" fill="#ffffff" font-size="9" font-weight="700" text-anchor="middle">SCHEDULED</text>
+
+      <rect x="0" y="100" width="327" height="64" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="12" y="120" fill="#f8fafc" font-size="12" font-weight="600">Webinar Confirmation</text>
+      <text x="12" y="138" fill="#94a3b8" font-size="10">Aug 24, 02:30 PM • 120 contacts</text>
+      <rect x="245" y="116" width="70" height="20" rx="4" fill="#0284c7"/>
+      <text x="280" y="130" fill="#ffffff" font-size="9" font-weight="700" text-anchor="middle">SCHEDULED</text>
+    </g>
+  </g>
+
+  <!-- Phone Frame 2: Mobile Reports Stacked Cards (Right) -->
+  <g transform="translate(660, 90)">
+    <rect width="375" height="660" rx="36" fill="#1e293b" stroke="#475569" stroke-width="4"/>
+    <rect x="12" y="12" width="351" height="636" rx="26" fill="#0f172a"/>
+
+    <!-- Status Bar -->
+    <rect x="110" y="18" width="155" height="18" rx="9" fill="#1e293b"/>
+    <text x="35" y="32" fill="#94a3b8" font-size="11" font-weight="600">09:41</text>
+    <text x="330" y="32" fill="#94a3b8" font-size="11" font-weight="600" text-anchor="end">100% 🔋</text>
+
+    <!-- App Mobile Header -->
+    <g transform="translate(24, 48)">
+      <text x="0" y="20" fill="#f8fafc" font-size="16" font-weight="700">Delivery Logs (64)</text>
+      <text x="327" y="20" fill="#34d399" font-size="11" font-weight="600" text-anchor="end">⬇ CSV</text>
+    </g>
+
+    <!-- Mobile Stacked Report Cards -->
+    <g transform="translate(24, 85)">
+      <!-- Card 1 (Sent) -->
+      <g transform="translate(0, 0)">
+        <rect width="327" height="115" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="14" y="24" fill="#f8fafc" font-size="13" font-weight="600">sarah.connor@cyberdyne.io</text>
+        <rect x="250" y="10" width="62" height="20" rx="4" fill="#064e3b"/>
+        <text x="281" y="24" fill="#34d399" font-size="10" font-weight="700" text-anchor="middle">✓ Sent</text>
+        
+        <text x="14" y="46" fill="#94a3b8" font-size="11">Sarah • Cyberdyne</text>
+        <text x="14" y="66" fill="#cbd5e1" font-size="11">Subject: Exclusive Invitation for Sarah...</text>
+        <text x="14" y="86" fill="#64748b" font-size="10">Aug 20, 2026, 18:04:12 • ID: &lt;msg_98b4f1_01&gt;</text>
+      </g>
+
+      <!-- Card 2 (Failed) -->
+      <g transform="translate(0, 125)">
+        <rect width="327" height="115" rx="10" fill="#1e293b" stroke="#450a0a" stroke-width="1"/>
+        <text x="14" y="24" fill="#f8fafc" font-size="13" font-weight="600">invalid@invalid-domain.xyz</text>
+        <rect x="250" y="10" width="62" height="20" rx="4" fill="#450a0a"/>
+        <text x="281" y="24" fill="#fca5a5" font-size="10" font-weight="700" text-anchor="middle">✖ Failed</text>
+        
+        <text x="14" y="46" fill="#94a3b8" font-size="11">Alex • Unknown</text>
+        <text x="14" y="66" fill="#cbd5e1" font-size="11">Subject: Exclusive Invitation for Alex...</text>
+        <text x="14" y="86" fill="#f43f5e" font-size="10">Error: 550 5.1.1 Recipient address rejected</text>
+      </g>
+
+      <!-- Card 3 (Sent) -->
+      <g transform="translate(0, 250)">
+        <rect width="327" height="115" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="14" y="24" fill="#f8fafc" font-size="13" font-weight="600">bruce.wayne@waynecorp.com</text>
+        <rect x="250" y="10" width="62" height="20" rx="4" fill="#064e3b"/>
+        <text x="281" y="24" fill="#34d399" font-size="10" font-weight="700" text-anchor="middle">✓ Sent</text>
+        
+        <text x="14" y="46" fill="#94a3b8" font-size="11">Bruce • Wayne Corp</text>
+        <text x="14" y="66" fill="#cbd5e1" font-size="11">Subject: Exclusive Invitation for Bruce...</text>
+        <text x="14" y="86" fill="#64748b" font-size="10">Aug 20, 2026, 18:04:57 • ID: &lt;msg_98b4f1_02&gt;</text>
+      </g>
+
+      <!-- Card 4 (Sent) -->
+      <g transform="translate(0, 375)">
+        <rect width="327" height="115" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="14" y="24" fill="#f8fafc" font-size="13" font-weight="600">tony.stark@starkindustries.com</text>
+        <rect x="250" y="10" width="62" height="20" rx="4" fill="#064e3b"/>
+        <text x="281" y="24" fill="#34d399" font-size="10" font-weight="700" text-anchor="middle">✓ Sent</text>
+        
+        <text x="14" y="46" fill="#94a3b8" font-size="11">Tony • Stark Ind</text>
+        <text x="14" y="66" fill="#cbd5e1" font-size="11">Subject: Exclusive Invitation for Tony...</text>
+        <text x="14" y="86" fill="#64748b" font-size="10">Aug 20, 2026, 18:06:27 • ID: &lt;msg_98b4f1_04&gt;</text>
+      </g>
+    </g>
+  </g>
+</svg>
