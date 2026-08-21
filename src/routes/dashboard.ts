@@ -14,7 +14,7 @@ let dashboardState = {
 const app = new Hono();
 
 // NEW: Lightweight endpoint to check if polling is needed
-app.get("/dashboard/poll-status", (c) => {
+app.get("/dashboard/poll-status", async (c) => {
   const user = requireAuth(c);
 
   try {
@@ -29,13 +29,16 @@ app.get("/dashboard/poll-status", (c) => {
     } else {
       // Check batch status (only import when needed)
       try {
-        const { batchService } = require("../services/batchService");
+        const { batchService } = await import("../services/batchService");
         const batchStatus = batchService.getBatchStatus();
         hasActiveBatch = batchStatus.isRunning;
         dashboardState.hasBatchJobs = hasActiveBatch;
         dashboardState.lastBatchCheck = now;
       } catch (error) {
-        console.warn("Batch service not available:", error.message);
+        console.warn(
+          "Batch service not available:",
+          error instanceof Error ? error.message : error
+        );
         hasActiveBatch = false;
       }
     }
@@ -49,16 +52,21 @@ app.get("/dashboard/poll-status", (c) => {
     } else {
       // Check scheduled jobs (only import when needed)
       try {
-        const { schedulerService } = require("../services/schedulerService");
+        const { schedulerService } = await import(
+          "../services/schedulerService"
+        );
         const scheduledJobs = schedulerService.getScheduledJobs();
         hasScheduledJobs = scheduledJobs && scheduledJobs.length > 0;
         hasRunningScheduledJobs =
           scheduledJobs &&
-          scheduledJobs.some((job) => job.status === "running");
+          scheduledJobs.some((job: any) => job.status === "running");
         dashboardState.hasScheduledJobs = hasScheduledJobs;
         dashboardState.lastScheduledCheck = now;
       } catch (error) {
-        console.warn("Scheduler service not available:", error.message);
+        console.warn(
+          "Scheduler service not available:",
+          error instanceof Error ? error.message : error
+        );
         hasScheduledJobs = false;
       }
     }
@@ -112,7 +120,7 @@ app.get("/dashboard/poll-status", (c) => {
 });
 
 // NEW: Optimized dashboard data endpoint (only called when needed)
-app.get("/dashboard/data", (c) => {
+app.get("/dashboard/data", async (c) => {
   const user = requireAuth(c);
 
   try {
@@ -122,26 +130,34 @@ app.get("/dashboard/data", (c) => {
     // Only fetch batch data if we know there are active jobs
     if (dashboardState.hasBatchJobs) {
       try {
-        const { batchService } = require("../services/batchService");
+        const { batchService } = await import("../services/batchService");
         batchStatus = batchService.getBatchStatus();
       } catch (error) {
-        console.warn("Batch service unavailable:", error.message);
+        console.warn(
+          "Batch service unavailable:",
+          error instanceof Error ? error.message : error
+        );
       }
     }
 
     // Only fetch scheduled jobs if we know there are any
     if (dashboardState.hasScheduledJobs) {
       try {
-        const { schedulerService } = require("../services/schedulerService");
+        const { schedulerService } = await import(
+          "../services/schedulerService"
+        );
         const allJobs = schedulerService.getScheduledJobs();
         // Filter to only return relevant ones and limit to 5
         scheduledJobs = allJobs
           .filter(
-            (job) => job.status === "scheduled" || job.status === "running"
+            (job: any) => job.status === "scheduled" || job.status === "running"
           )
           .slice(0, 5);
       } catch (error) {
-        console.warn("Scheduler service unavailable:", error.message);
+        console.warn(
+          "Scheduler service unavailable:",
+          error instanceof Error ? error.message : error
+        );
       }
     }
 

@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" style="background:#0f172a;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif">
+  <!-- Top Navigation Bar -->
+  <rect width="1200" height="64" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <g transform="translate(32, 16)">
+    <rect width="32" height="32" rx="8" fill="#4f46e5"/>
+    <path d="M8 11 L16 18 L24 11 M8 11 L24 11 L24 23 L8 23 Z" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="44" y="22" fill="#ffffff" font-size="18" font-weight="700">Bulk Email Sender</text>
+  </g>
+
+  <!-- Nav Links -->
+  <g transform="translate(320, 22)">
+    <text x="45" y="16" fill="#94a3b8" font-size="14" font-weight="500" text-anchor="middle">Dashboard</text>
+    <rect x="100" y="-4" width="80" height="32" rx="6" fill="#334155"/>
+    <text x="140" y="16" fill="#818cf8" font-size="14" font-weight="600" text-anchor="middle">Compose</text>
+    <text x="240" y="16" fill="#94a3b8" font-size="14" font-weight="500">SMTP Configs</text>
+    <text x="360" y="16" fill="#94a3b8" font-size="14" font-weight="500">Scheduled Jobs</text>
+    <text x="490" y="16" fill="#94a3b8" font-size="14" font-weight="500">Reports</text>
+  </g>
+
+  <!-- Main Content Area -->
+  <g transform="translate(64, 86)">
+    <!-- Header -->
+    <text x="0" y="24" fill="#f8fafc" font-size="24" font-weight="700">Compose &amp; Dispatch Campaign</text>
+    <text x="0" y="46" fill="#94a3b8" font-size="13">Configure SMTP credentials, parse Excel contacts, personalize rich HTML content, and execute dispatch</text>
+
+    <!-- Two-Column Layout -->
+    <!-- Left Column: Setup & Recipients (520px) -->
+    <g transform="translate(0, 65)">
+      <!-- 1. SMTP Config Selector -->
+      <rect width="520" height="110" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="20" y="28" fill="#f8fafc" font-size="14" font-weight="700">1. Sender SMTP Configuration</text>
+      <rect x="20" y="42" width="480" height="40" rx="8" fill="#0f172a" stroke="#4f46e5" stroke-width="1.5"/>
+      <text x="36" y="67" fill="#f8fafc" font-size="14">Company Marketing (AWS SES) — ses-smtp-us-east-1.amazonaws.com</text>
+      <text x="20" y="98" fill="#10b981" font-size="11" font-weight="600">✓ Provider detected: Custom SMTP • Daily limit: 10,000 • Max contacts per job: 5,000</text>
+
+      <!-- 2. Contact List Upload & Range Math -->
+      <g transform="translate(0, 125)">
+        <rect width="520" height="240" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="20" y="28" fill="#f8fafc" font-size="14" font-weight="700">2. Contact List (.xlsx) &amp; Range Selection</text>
+        
+        <!-- Uploaded File Badge -->
+        <rect x="20" y="42" width="480" height="38" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+        <text x="36" y="66" fill="#38bdf8" font-size="13" font-weight="600">📄 enterprise_leads_q3.xlsx</text>
+        <text x="480" y="66" fill="#10b981" font-size="12" font-weight="600" text-anchor="end">✓ 50 Valid Contacts Parsed</text>
+
+        <!-- Range Mode Radios -->
+        <g transform="translate(20, 95)">
+          <text x="0" y="15" fill="#cbd5e1" font-size="12" font-weight="600">Recipient Scope:</text>
+          
+          <!-- Radio 1: All -->
+          <circle cx="10" cy="35" r="7" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+          <text x="25" y="40" fill="#94a3b8" font-size="12">All contacts (50)</text>
+
+          <!-- Radio 2: First N -->
+          <circle cx="150" cy="35" r="7" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+          <text x="165" y="40" fill="#94a3b8" font-size="12">First N contacts</text>
+
+          <!-- Radio 3: Custom Range (Selected) -->
+          <circle cx="280" cy="35" r="7" fill="#4f46e5" stroke="#818cf8" stroke-width="2"/>
+          <circle cx="280" cy="35" r="3.5" fill="#ffffff"/>
+          <text x="295" y="40" fill="#f8fafc" font-size="12" font-weight="600">Specific Row Range</text>
+        </g>
+
+        <!-- Range Inputs & Calculated Summary -->
+        <g transform="translate(20, 155)">
+          <text x="0" y="18" fill="#94a3b8" font-size="12">Start Row (1-based):</text>
+          <rect x="120" y="0" width="70" height="30" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+          <text x="155" y="20" fill="#f8fafc" font-size="13" font-weight="600" text-anchor="middle">1</text>
+
+          <text x="210" y="18" fill="#94a3b8" font-size="12">End Row:</text>
+          <rect x="270" y="0" width="70" height="30" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+          <text x="305" y="20" fill="#f8fafc" font-size="13" font-weight="600" text-anchor="middle">25</text>
+
+          <rect x="0" y="42" width="480" height="30" rx="6" fill="#1e1b4b" stroke="#4338ca" stroke-width="1"/>
+          <text x="12" y="62" fill="#a5b4fc" font-size="11" font-weight="500">🎯 Arithmetic Result: Sending to 25 of 50 contacts (API: emailRangeStart=0, emailRangeCount=25)</text>
+        </g>
+      </g>
+
+      <!-- 3. Dispatch Mode Selector -->
+      <g transform="translate(0, 380)">
+        <rect width="520" height="200" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="20" y="28" fill="#f8fafc" font-size="14" font-weight="700">3. Sending Mode &amp; Batch Configuration</text>
+
+        <!-- Toggle 1: Batch Mode (Active) -->
+        <g transform="translate(20, 42)">
+          <rect width="480" height="58" rx="8" fill="#0f172a" stroke="#3b82f6" stroke-width="1"/>
+          <rect x="16" y="18" width="36" height="20" rx="10" fill="#3b82f6"/>
+          <circle cx="42" cy="28" r="7" fill="#ffffff"/>
+          <text x="64" y="26" fill="#f8fafc" font-size="13" font-weight="600">Enable Batch Processing</text>
+          <text x="64" y="44" fill="#94a3b8" font-size="11">Divide 25 contacts into batches of 10 with 60 min delay between batches</text>
+        </g>
+
+        <!-- Toggle 2: Schedule Future Delivery -->
+        <g transform="translate(20, 110)">
+          <rect width="480" height="58" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+          <rect x="16" y="18" width="36" height="20" rx="10" fill="#334155"/>
+          <circle cx="26" cy="28" r="7" fill="#94a3b8"/>
+          <text x="64" y="26" fill="#cbd5e1" font-size="13" font-weight="600">Schedule for Future Delivery</text>
+          <text x="64" y="44" fill="#64748b" font-size="11">Queue campaign in SQLite background scheduler (IANA Timezone: Asia/Kolkata)</text>
+        </g>
+
+        <text x="20" y="188" fill="#94a3b8" font-size="11">⏱️ Estimated duration: 2 hours (3 batches of 10, 10, 5 emails with 45s interval)</text>
+      </g>
+    </g>
+
+    <!-- Right Column: Rich Text Editor & Live Preview (520px) -->
+    <g transform="translate(552, 65)">
+      <rect width="520" height="580" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      
+      <!-- Subject Input -->
+      <g transform="translate(20, 20)">
+        <text x="0" y="12" fill="#f8fafc" font-size="13" font-weight="600">Subject Line</text>
+        <rect x="0" y="22" width="480" height="38" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+        <text x="14" y="46" fill="#f8fafc" font-size="13">Exclusive Invitation for {{FirstName}} from {{Company}}</text>
+      </g>
+
+      <!-- TipTap WYSIWYG Editor Container -->
+      <g transform="translate(20, 95)">
+        <text x="0" y="12" fill="#f8fafc" font-size="13" font-weight="600">Email Message Body (TipTap Rich Text)</text>
+        
+        <!-- Editor Box -->
+        <rect x="0" y="22" width="480" height="320" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+        
+        <!-- Editor Toolbar -->
+        <rect x="0" y="22" width="480" height="36" rx="8" fill="#1e293b"/>
+        <text x="16" y="45" fill="#cbd5e1" font-size="12" font-weight="700">B</text>
+        <text x="36" y="45" fill="#cbd5e1" font-size="12" font-style="italic">I</text>
+        <text x="56" y="45" fill="#cbd5e1" font-size="12" text-decoration="underline">U</text>
+        <text x="80" y="45" fill="#cbd5e1" font-size="11">H1</text>
+        <text x="105" y="45" fill="#cbd5e1" font-size="11">H2</text>
+        <text x="135" y="45" fill="#cbd5e1" font-size="11">• List</text>
+        <text x="180" y="45" fill="#cbd5e1" font-size="11">🖼 Image</text>
+        <text x="240" y="45" fill="#818cf8" font-size="11" font-weight="600">+ Insert Placeholder</text>
+
+        <!-- Editor Content Area -->
+        <g transform="translate(16, 75)">
+          <text x="0" y="16" fill="#f8fafc" font-size="15" font-weight="600">Hi {{FirstName}},</text>
+          <text x="0" y="44" fill="#cbd5e1" font-size="13">We are thrilled to present our next-generation enterprise platform</text>
+          <text x="0" y="66" fill="#cbd5e1" font-size="13">tailored specifically for {{Company}}.</text>
+          
+          <rect x="0" y="90" width="200" height="36" rx="6" fill="#4f46e5"/>
+          <text x="100" y="113" fill="#ffffff" font-size="13" font-weight="600" text-anchor="middle">Explore Solutions →</text>
+
+          <text x="0" y="160" fill="#94a3b8" font-size="12">Best regards,</text>
+          <text x="0" y="180" fill="#94a3b8" font-size="12">The Marketing Engineering Team</text>
+        </g>
+      </g>
+
+      <!-- Action Buttons: Preview & Dispatch -->
+      <g transform="translate(20, 465)">
+        <!-- Preview Modal Button -->
+        <rect x="0" y="0" width="230" height="46" rx="10" fill="#334155" stroke="#475569" stroke-width="1"/>
+        <text x="115" y="28" fill="#f8fafc" font-size="14" font-weight="600" text-anchor="middle">👁️ Live Preview Modal</text>
+
+        <!-- Send Campaign Button -->
+        <rect x="250" y="0" width="230" height="46" rx="10" fill="#4f46e5"/>
+        <text x="365" y="28" fill="#ffffff" font-size="14" font-weight="600" text-anchor="middle">⚡ Send Campaign (Batch)</text>
+      </g>
+
+      <text x="20" y="535" fill="#64748b" font-size="11">🔒 16-field multipart payload verified • Booleans serialized as "on" • Single-slot batch guard active</text>
+    </g>
+  </g>
+</svg>

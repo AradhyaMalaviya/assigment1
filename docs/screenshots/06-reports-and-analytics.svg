@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" style="background:#0f172a;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif">
+  <!-- Top Navigation Bar -->
+  <rect width="1200" height="64" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <g transform="translate(32, 16)">
+    <rect width="32" height="32" rx="8" fill="#4f46e5"/>
+    <path d="M8 11 L16 18 L24 11 M8 11 L24 11 L24 23 L8 23 Z" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="44" y="22" fill="#ffffff" font-size="18" font-weight="700">Bulk Email Sender</text>
+  </g>
+
+  <!-- Nav Links -->
+  <g transform="translate(320, 22)">
+    <text x="45" y="16" fill="#94a3b8" font-size="14" font-weight="500" text-anchor="middle">Dashboard</text>
+    <text x="140" y="16" fill="#94a3b8" font-size="14" font-weight="500">Compose</text>
+    <text x="240" y="16" fill="#94a3b8" font-size="14" font-weight="500">SMTP Configs</text>
+    <text x="360" y="16" fill="#94a3b8" font-size="14" font-weight="500">Scheduled Jobs</text>
+    <rect x="440" y="-4" width="90" height="32" rx="6" fill="#334155"/>
+    <text x="485" y="16" fill="#818cf8" font-size="14" font-weight="600" text-anchor="middle">Reports</text>
+  </g>
+
+  <!-- Main Content Area -->
+  <g transform="translate(64, 86)">
+    <!-- Header -->
+    <text x="0" y="24" fill="#f8fafc" font-size="24" font-weight="700">Delivery Logs &amp; Performance Analytics</text>
+    <text x="0" y="46" fill="#94a3b8" font-size="13">Detailed recipient-level audit logs, status filtering, sortable metrics, and CSV/JSON export</text>
+
+    <!-- 4 Headline Stat Cards -->
+    <g transform="translate(0, 65)">
+      <!-- Card 1: Total -->
+      <rect x="0" y="0" width="250" height="84" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <rect x="0" y="0" width="6" height="84" rx="3" fill="#6366f1"/>
+      <text x="20" y="28" fill="#94a3b8" font-size="12" font-weight="500">TOTAL DISPATCHES</text>
+      <text x="20" y="60" fill="#f8fafc" font-size="28" font-weight="700">64</text>
+      <text x="220" y="56" fill="#94a3b8" font-size="12" text-anchor="end">100%</text>
+
+      <!-- Card 2: Sent -->
+      <rect x="274" y="0" width="250" height="84" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <rect x="274" y="0" width="6" height="84" rx="3" fill="#10b981"/>
+      <text x="294" y="28" fill="#94a3b8" font-size="12" font-weight="500">DELIVERED (SENT)</text>
+      <text x="294" y="60" fill="#10b981" font-size="28" font-weight="700">62</text>
+      <text x="494" y="56" fill="#34d399" font-size="12" font-weight="600" text-anchor="end">96.9%</text>
+
+      <!-- Card 3: Failed -->
+      <rect x="548" y="0" width="250" height="84" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <rect x="548" y="0" width="6" height="84" rx="3" fill="#f43f5e"/>
+      <text x="568" y="28" fill="#94a3b8" font-size="12" font-weight="500">FAILED DELIVERIES</text>
+      <text x="568" y="60" fill="#f43f5e" font-size="28" font-weight="700">2</text>
+      <text x="768" y="56" fill="#fb7185" font-size="12" font-weight="600" text-anchor="end">3.1%</text>
+
+      <!-- Card 4: Errors -->
+      <rect x="822" y="0" width="250" height="84" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <rect x="822" y="0" width="6" height="84" rx="3" fill="#f59e0b"/>
+      <text x="842" y="28" fill="#94a3b8" font-size="12" font-weight="500">SYSTEM ERRORS</text>
+      <text x="842" y="60" fill="#f59e0b" font-size="28" font-weight="700">0</text>
+      <text x="1042" y="56" fill="#fbbf24" font-size="12" font-weight="600" text-anchor="end">0.0%</text>
+    </g>
+
+    <!-- Toolbar: Search, Filters & Export -->
+    <g transform="translate(0, 165)">
+      <rect width="1072" height="52" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      
+      <!-- Search Input -->
+      <rect x="12" y="8" width="280" height="36" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="26" y="31" fill="#94a3b8" font-size="13">🔍 Search emails, recipients, subjects...</text>
+
+      <!-- Status Filter -->
+      <rect x="304" y="8" width="130" height="36" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="318" y="31" fill="#f8fafc" font-size="12">Status: All (64) ▾</text>
+
+      <!-- Date Range -->
+      <rect x="446" y="8" width="160" height="36" rx="6" fill="#0f172a" stroke="#475569" stroke-width="1"/>
+      <text x="458" y="31" fill="#94a3b8" font-size="12">📅 Last 30 Days ▾</text>
+
+      <!-- Actions on Right -->
+      <g transform="translate(680, 8)">
+        <!-- Refresh Button -->
+        <rect x="0" y="0" width="80" height="36" rx="6" fill="#334155"/>
+        <text x="40" y="22" fill="#f8fafc" font-size="12" font-weight="500" text-anchor="middle">↻ Refresh</text>
+
+        <!-- CSV Export -->
+        <rect x="90" y="0" width="86" height="36" rx="6" fill="#065f46" stroke="#059669" stroke-width="1"/>
+        <text x="133" y="22" fill="#34d399" font-size="12" font-weight="600" text-anchor="middle">⬇ CSV</text>
+
+        <!-- JSON Export -->
+        <rect x="186" y="0" width="86" height="36" rx="6" fill="#1e1b4b" stroke="#4338ca" stroke-width="1"/>
+        <text x="229" y="22" fill="#a5b4fc" font-size="12" font-weight="600" text-anchor="middle">⬇ JSON</text>
+
+        <!-- Clear Logs -->
+        <rect x="282" y="0" width="98" height="36" rx="6" fill="#450a0a" stroke="#991b1b" stroke-width="1"/>
+        <text x="331" y="22" fill="#fca5a5" font-size="12" font-weight="600" text-anchor="middle">🗑 Clear Logs</text>
+      </g>
+    </g>
+
+    <!-- 8-Column Sortable Table -->
+    <g transform="translate(0, 230)">
+      <rect width="1072" height="420" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      
+      <!-- Table Header -->
+      <rect width="1072" height="40" rx="12" fill="#0f172a"/>
+      <text x="20" y="25" fill="#94a3b8" font-size="11" font-weight="700">RECIPIENT EMAIL ▾</text>
+      <text x="240" y="25" fill="#94a3b8" font-size="11" font-weight="700">STATUS</text>
+      <text x="320" y="25" fill="#94a3b8" font-size="11" font-weight="700">NAME</text>
+      <text x="420" y="25" fill="#94a3b8" font-size="11" font-weight="700">COMPANY</text>
+      <text x="540" y="25" fill="#94a3b8" font-size="11" font-weight="700">SUBJECT</text>
+      <text x="760" y="25" fill="#94a3b8" font-size="11" font-weight="700">TIMESTAMP ▾</text>
+      <text x="910" y="25" fill="#94a3b8" font-size="11" font-weight="700">MESSAGE ID / ERROR</text>
+
+      <!-- Row 1 (Sent) -->
+      <g transform="translate(0, 40)">
+        <rect width="1072" height="52" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+        <text x="20" y="30" fill="#f8fafc" font-size="13" font-weight="500">sarah.connor@cyberdyne.io</text>
+        <rect x="240" y="16" width="60" height="20" rx="4" fill="#064e3b"/>
+        <text x="270" y="30" fill="#34d399" font-size="11" font-weight="600" text-anchor="middle">✓ Sent</text>
+        <text x="320" y="30" fill="#cbd5e1" font-size="13">Sarah</text>
+        <text x="420" y="30" fill="#cbd5e1" font-size="13">Cyberdyne</text>
+        <text x="540" y="30" fill="#cbd5e1" font-size="13">Exclusive Invitation for Sarah...</text>
+        <text x="760" y="30" fill="#94a3b8" font-size="12">18:04:12</text>
+        <text x="910" y="30" fill="#64748b" font-size="11">&lt;msg_98b4f1_01@ses&gt;</text>
+      </g>
+
+      <!-- Row 2 (Sent) -->
+      <g transform="translate(0, 92)">
+        <rect width="1072" height="52" fill="#0f172a" stroke="#334155" stroke-width="0.5"/>
+        <text x="20" y="30" fill="#f8fafc" font-size="13" font-weight="500">bruce.wayne@waynecorp.com</text>
+        <rect x="240" y="16" width="60" height="20" rx="4" fill="#064e3b"/>
+        <text x="270" y="30" fill="#34d399" font-size="11" font-weight="600" text-anchor="middle">✓ Sent</text>
+        <text x="320" y="30" fill="#cbd5e1" font-size="13">Bruce</text>
+        <text x="420" y="30" fill="#cbd5e1" font-size="13">Wayne Corp</text>
+        <text x="540" y="30" fill="#cbd5e1" font-size="13">Exclusive Invitation for Bruce...</text>
+        <text x="760" y="30" fill="#94a3b8" font-size="12">18:04:57</text>
+        <text x="910" y="30" fill="#64748b" font-size="11">&lt;msg_98b4f1_02@ses&gt;</text>
+      </g>
+
+      <!-- Row 3 (Failed) -->
+      <g transform="translate(0, 144)">
+        <rect width="1072" height="52" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+        <text x="20" y="30" fill="#f8fafc" font-size="13" font-weight="500">invalid-recipient@invalid-domain.xyz</text>
+        <rect x="240" y="16" width="60" height="20" rx="4" fill="#450a0a"/>
+        <text x="270" y="30" fill="#fca5a5" font-size="11" font-weight="600" text-anchor="middle">✖ Failed</text>
+        <text x="320" y="30" fill="#cbd5e1" font-size="13">Alex</text>
+        <text x="420" y="30" fill="#cbd5e1" font-size="13">Unknown</text>
+        <text x="540" y="30" fill="#cbd5e1" font-size="13">Exclusive Invitation for Alex...</text>
+        <text x="760" y="30" fill="#94a3b8" font-size="12">18:05:42</text>
+        <text x="910" y="30" fill="#f43f5e" font-size="11">550 5.1.1 Recipient address rejected</text>
+      </g>
+
+      <!-- Row 4 (Sent) -->
+      <g transform="translate(0, 196)">
+        <rect width="1072" height="52" fill="#0f172a" stroke="#334155" stroke-width="0.5"/>
+        <text x="20" y="30" fill="#f8fafc" font-size="13" font-weight="500">tony.stark@starkindustries.com</text>
+        <rect x="240" y="16" width="60" height="20" rx="4" fill="#064e3b"/>
+        <text x="270" y="30" fill="#34d399" font-size="11" font-weight="600" text-anchor="middle">✓ Sent</text>
+        <text x="320" y="30" fill="#cbd5e1" font-size="13">Tony</text>
+        <text x="420" y="30" fill="#cbd5e1" font-size="13">Stark Ind</text>
+        <text x="540" y="30" fill="#cbd5e1" font-size="13">Exclusive Invitation for Tony...</text>
+        <text x="760" y="30" fill="#94a3b8" font-size="12">18:06:27</text>
+        <text x="910" y="30" fill="#64748b" font-size="11">&lt;msg_98b4f1_04@ses&gt;</text>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,4 +1,7 @@
-import * as XLSX from "xlsx";
+// `xlsx` is CommonJS. Under Node's ESM loader a namespace import (`import * as`)
+// exposes the exports under `.default` rather than hoisting them, so the named
+// helpers resolve to undefined. A default import gives the module object directly.
+import XLSX from "xlsx";
 import { writeFile, readFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import type { Contact } from "../types";

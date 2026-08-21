@@ -1,5 +1,5 @@
 // src/services/userDatabase.ts - SECURE VERSION FOR PRODUCTION
-import Database from "bun:sqlite";
+import Database from "better-sqlite3";
 import { existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
 import { hash, verify } from "argon2";
@@ -40,7 +40,7 @@ export interface UserSMTPConfig {
 }
 
 class UserDatabase {
-  private db: Database;
+  private db: Database.Database;
   private sessionSecret: string;
 
   constructor() {

@@ -41,3 +41,12 @@ uploads/*
 data/*
 !data/.gitkeep
 uploads/*
+
+# SvelteKit frontend artifacts
+frontend/node_modules/
+frontend/.svelte-kit/
+frontend/.vercel/
+frontend/build/
+frontend/.env
+frontend/.env.local
+!frontend/.env.example

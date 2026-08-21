@@ -5,17 +5,12 @@ documentation:
 dependencies:
   - 'package.json'
   - 'package-lock.json'
-  - 'bun.lock'
 
 frontend:
-  - 'public/**/*'
-  - '**/*.html'
-  - '**/*.css'
-  - 'public/js/**/*'
+  - 'frontend/**/*'
 
 backend:
   - 'src/**/*.ts'
-  - 'index.ts'
 
 services:
   - 'src/services/**/*'

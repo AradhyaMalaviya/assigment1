@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" style="background:#0f172a;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif">
+  <!-- Top Navigation Bar -->
+  <rect width="1200" height="64" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <g transform="translate(32, 16)">
+    <rect width="32" height="32" rx="8" fill="#4f46e5"/>
+    <path d="M8 11 L16 18 L24 11 M8 11 L24 11 L24 23 L8 23 Z" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="44" y="22" fill="#ffffff" font-size="18" font-weight="700">Bulk Email Sender</text>
+  </g>
+
+  <!-- Nav Links -->
+  <g transform="translate(320, 22)">
+    <rect x="0" y="-4" width="90" height="32" rx="6" fill="#334155"/>
+    <text x="45" y="16" fill="#818cf8" font-size="14" font-weight="600" text-anchor="middle">Dashboard</text>
+    <text x="140" y="16" fill="#94a3b8" font-size="14" font-weight="500">Compose</text>
+    <text x="240" y="16" fill="#94a3b8" font-size="14" font-weight="500">SMTP Configs</text>
+    <text x="360" y="16" fill="#94a3b8" font-size="14" font-weight="500">Scheduled Jobs</text>
+    <text x="490" y="16" fill="#94a3b8" font-size="14" font-weight="500">Reports</text>
+  </g>
+
+  <!-- User Menu & Status -->
+  <g transform="translate(1020, 16)">
+    <circle cx="16" cy="16" r="16" fill="#4f46e5"/>
+    <text x="16" y="21" fill="#ffffff" font-size="13" font-weight="600" text-anchor="middle">AD</text>
+    <text x="40" y="21" fill="#f8fafc" font-size="14" font-weight="500">Alex Dev</text>
+    <circle cx="120" cy="16" r="4" fill="#10b981"/>
+  </g>
+
+  <!-- Main Content Area -->
+  <g transform="translate(64, 96)">
+    <!-- Page Header -->
+    <text x="0" y="28" fill="#f8fafc" font-size="26" font-weight="700">Campaign Operations Dashboard</text>
+    <text x="0" y="52" fill="#94a3b8" font-size="14">Real-time batch dispatch monitoring &amp; scheduled background worker queue</text>
+
+    <!-- Polling Status Badge -->
+    <g transform="translate(900, 10)">
+      <rect width="170" height="32" rx="16" fill="#064e3b" stroke="#059669" stroke-width="1"/>
+      <circle cx="18" cy="16" r="4" fill="#34d399"/>
+      <text x="32" y="21" fill="#6ee7b7" font-size="12" font-weight="600">Adaptive Polling: 3s</text>
+    </g>
+
+    <!-- 1. Active Batch Monitor Card -->
+    <g transform="translate(0, 80)">
+      <rect width="1072" height="240" rx="14" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+      
+      <!-- Card Header -->
+      <g transform="translate(24, 24)">
+        <rect width="100" height="26" rx="6" fill="#1d4ed8"/>
+        <text x="50" y="17" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle">⚡ ACTIVE BATCH</text>
+        <text x="116" y="18" fill="#f8fafc" font-size="18" font-weight="700">Q3 Product Launch Announcement (Job #job_98b4f1)</text>
+      </g>
+
+      <!-- Action Buttons -->
+      <g transform="translate(820, 20)">
+        <rect x="0" y="0" width="80" height="34" rx="8" fill="#eab308" stroke="#ca8a04" stroke-width="1"/>
+        <text x="40" y="21" fill="#0f172a" font-size="13" font-weight="600" text-anchor="middle">⏸ Pause</text>
+
+        <rect x="90" y="0" width="86" height="34" rx="8" fill="#dc2626" stroke="#b91c1c" stroke-width="1"/>
+        <text x="133" y="21" fill="#ffffff" font-size="13" font-weight="600" text-anchor="middle">✖ Cancel</text>
+      </g>
+
+      <!-- Progress Section -->
+      <g transform="translate(24, 80)">
+        <text x="0" y="0" fill="#94a3b8" font-size="13" font-weight="500">Overall Progress: 64 of 100 Contacts (64%)</text>
+        <text x="1024" y="0" fill="#38bdf8" font-size="13" font-weight="600" text-anchor="end">Batch 4 of 5</text>
+        
+        <!-- Progress Bar Background -->
+        <rect x="0" y="12" width="1024" height="14" rx="7" fill="#0f172a"/>
+        <!-- Progress Fill -->
+        <rect x="0" y="12" width="655" height="14" rx="7" fill="#3b82f6"/>
+      </g>
+
+      <!-- Metrics Row -->
+      <g transform="translate(24, 140)">
+        <!-- Stat 1 -->
+        <rect x="0" y="0" width="240" height="64" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+        <text x="16" y="26" fill="#94a3b8" font-size="12">Emails Dispatched</text>
+        <text x="16" y="50" fill="#10b981" font-size="20" font-weight="700">62 Sent</text>
+
+        <!-- Stat 2 -->
+        <rect x="260" y="0" width="240" height="64" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+        <text x="16" y="26" fill="#94a3b8" font-size="12">Failed Deliveries</text>
+        <text x="16" y="50" fill="#f43f5e" font-size="20" font-weight="700">2 Failed</text>
+
+        <!-- Stat 3 -->
+        <rect x="520" y="0" width="240" height="64" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+        <text x="16" y="26" fill="#94a3b8" font-size="12">Next Batch Countdown</text>
+        <text x="16" y="50" fill="#38bdf8" font-size="20" font-weight="700">00:42:15</text>
+
+        <!-- Stat 4 -->
+        <rect x="780" y="0" width="244" height="64" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+        <text x="16" y="26" fill="#94a3b8" font-size="12">SMTP Configuration</text>
+        <text x="16" y="50" fill="#f8fafc" font-size="16" font-weight="600">Company Marketing (AWS SES)</text>
+      </g>
+    </g>
+
+    <!-- 2. Bottom Grid: Scheduled Queue & Activity Timeline -->
+    <g transform="translate(0, 345)">
+      <!-- Left: Scheduled Queue Preview -->
+      <g transform="translate(0, 0)">
+        <rect width="520" height="280" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="24" y="36" fill="#f8fafc" font-size="18" font-weight="700">Upcoming Scheduled Campaigns</text>
+        <text x="496" y="34" fill="#818cf8" font-size="13" font-weight="500" text-anchor="end">View All (3) →</text>
+
+        <!-- Item 1 -->
+        <g transform="translate(24, 58)">
+          <rect width="472" height="60" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+          <text x="16" y="24" fill="#f8fafc" font-size="14" font-weight="600">Weekly Tech Newsletter #142</text>
+          <text x="16" y="44" fill="#94a3b8" font-size="12">📅 Aug 22, 2026, 09:00 AM • 450 contacts • Batch (50/hr)</text>
+          <rect x="380" y="16" width="76" height="24" rx="6" fill="#0284c7"/>
+          <text x="418" y="32" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">SCHEDULED</text>
+        </g>
+
+        <!-- Item 2 -->
+        <g transform="translate(24, 128)">
+          <rect width="472" height="60" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+          <text x="16" y="24" fill="#f8fafc" font-size="14" font-weight="600">Webinar Confirmation Reminders</text>
+          <text x="16" y="44" fill="#94a3b8" font-size="12">📅 Aug 24, 2026, 02:30 PM • 120 contacts • Sequential</text>
+          <rect x="380" y="16" width="76" height="24" rx="6" fill="#0284c7"/>
+          <text x="418" y="32" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">SCHEDULED</text>
+        </g>
+
+        <!-- Item 3 -->
+        <g transform="translate(24, 198)">
+          <rect width="472" height="60" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+          <text x="16" y="24" fill="#f8fafc" font-size="14" font-weight="600">Customer Feedback Survey Q3</text>
+          <text x="16" y="44" fill="#94a3b8" font-size="12">📅 Aug 28, 2026, 11:00 AM • 80 contacts • Sequential</text>
+          <rect x="380" y="16" width="76" height="24" rx="6" fill="#0284c7"/>
+          <text x="418" y="32" fill="#ffffff" font-size="11" font-weight="600" text-anchor="middle">SCHEDULED</text>
+        </g>
+      </g>
+
+      <!-- Right: Activity Timeline -->
+      <g transform="translate(552, 0)">
+        <rect width="520" height="280" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+        <text x="24" y="36" fill="#f8fafc" font-size="18" font-weight="700">Recent Activity Timeline</text>
+        <text x="496" y="34" fill="#64748b" font-size="12" text-anchor="end">Persisted to Storage</text>
+
+        <!-- Timeline 1 -->
+        <g transform="translate(24, 60)">
+          <circle cx="12" cy="12" r="6" fill="#3b82f6"/>
+          <line x1="12" y1="20" x2="12" y2="60" stroke="#334155" stroke-width="2"/>
+          <text x="28" y="16" fill="#f8fafc" font-size="13" font-weight="600">Batch Dispatch Started</text>
+          <text x="28" y="34" fill="#94a3b8" font-size="12">Job #job_98b4f1 initiated with 100 recipients (AWS SES)</text>
+          <text x="472" y="16" fill="#64748b" font-size="11" text-anchor="end">12 mins ago</text>
+        </g>
+
+        <!-- Timeline 2 -->
+        <g transform="translate(24, 125)">
+          <circle cx="12" cy="12" r="6" fill="#10b981"/>
+          <line x1="12" y1="20" x2="12" y2="60" stroke="#334155" stroke-width="2"/>
+          <text x="28" y="16" fill="#f8fafc" font-size="13" font-weight="600">Campaign Scheduled</text>
+          <text x="28" y="34" fill="#94a3b8" font-size="12">Weekly Tech Newsletter #142 queued for Aug 22, 09:00 AM</text>
+          <text x="472" y="16" fill="#64748b" font-size="11" text-anchor="end">1 hour ago</text>
+        </g>
+
+        <!-- Timeline 3 -->
+        <g transform="translate(24, 190)">
+          <circle cx="12" cy="12" r="6" fill="#8b5cf6"/>
+          <text x="28" y="16" fill="#f8fafc" font-size="13" font-weight="600">SMTP Configuration Added</text>
+          <text x="28" y="34" fill="#94a3b8" font-size="12">Registered and verified "Company Marketing (AWS SES)"</text>
+          <text x="472" y="16" fill="#64748b" font-size="11" text-anchor="end">3 hours ago</text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

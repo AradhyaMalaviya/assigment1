@@ -1,6 +1,6 @@
 // src/services/schedulerService.ts - FIX DOUBLE NOTIFICATION ISSUE
 
-import Database from "bun:sqlite";
+import Database from "better-sqlite3";
 import { batchService } from "./batchService";
 import { emailService } from "./emailService";
 import { notificationService } from "./notificationService";
@@ -9,8 +9,8 @@ import { existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
 
 class SchedulerService {
-  private db: Database;
-  private schedulerInterval: Timer | null = null;
+  private db: Database.Database;
+  private schedulerInterval: NodeJS.Timeout | null = null;
 
   constructor() {
     // Ensure data directory exists
